@@ -1,68 +1,68 @@
-import Link from 'next/link';
+import Link from "next/link";
 
 export default function Home() {
   return (
-    <div className="flex flex-col min-h-screen">
-
-      {/* 1. HERO SEKCIJA (Veliki plavi dio na vrhu) */}
-      <section className="bg-blue-600 text-white py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+    <main className="min-h-screen bg-white text-gray-800 font-sans">
+      
+      {/* 1. GLAVNI DIO (HERO) - Čisto bijelo */}
+      <section className="relative bg-white pt-20 pb-32 lg:pt-32">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
           
-          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-6">
-            Zajedno gradimo bolju budućnost
+          {/* NASLOV */}
+          <h1 className="mx-auto max-w-4xl font-display text-5xl font-black tracking-tight text-slate-900 sm:text-7xl">
+            Humanitarna Fondacija
+            <span className="relative whitespace-nowrap text-blue-900 block mt-2">
+              <span className="relative">DULJEVIĆ</span>
+            </span>
           </h1>
-          
-          <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto text-blue-100">
-            Dobrodošli na stranicu naše Fondacije. Vaša podrška mijenja živote i vraća osmijeh na lica onima kojima je to najpotrebnije.
+
+          {/* TEKST ISPOD */}
+          <p className="mx-auto mt-6 max-w-2xl text-lg tracking-tight text-slate-700">
+            Mi smo most između onih koji imaju srce da daju i onih kojima je pomoć najpotrebnija. Transparentno, direktno i od srca.
           </p>
-          
-          <div className="flex justify-center space-x-4">
-            <Link href="/donacije" className="bg-white text-blue-600 px-8 py-3 rounded-full font-bold text-lg hover:bg-gray-100 transition shadow-lg">
-              Doniraj odmah ❤️
+
+          {/* DUGMADI */}
+          <div className="mt-10 flex justify-center gap-x-6">
+            <Link
+              href="/donacije"
+              className="rounded-md bg-[#be1e2d] px-8 py-3.5 text-sm font-bold text-white shadow-sm hover:bg-red-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 transition-all"
+            >
+              DONIRAJ SADA ❤️
             </Link>
-            <Link href="/onama" className="bg-blue-700 text-white border border-blue-400 px-8 py-3 rounded-full font-bold text-lg hover:bg-blue-800 transition">
-              Saznaj više
+            <Link
+              href="/onama"
+              className="text-sm font-bold leading-6 text-blue-900 hover:text-blue-700 py-3.5"
+            >
+              Saznaj više o nama <span aria-hidden="true">→</span>
             </Link>
           </div>
-
         </div>
       </section>
 
-      {/* 2. KARTICE (Šta mi radimo) */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900">Naši Ciljevi</h2>
-            <p className="mt-4 text-gray-600">Fokusirani smo na transparentnost i direktnu pomoć.</p>
+      {/* 2. STATISTIKA (Svijetlo siva traka) */}
+      <section className="bg-slate-50 py-12 border-y border-slate-200">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="grid grid-cols-1 gap-y-8 text-center md:grid-cols-3">
+            
+            <div className="flex flex-col gap-y-2">
+              <dt className="text-base leading-7 text-slate-600">Porodica Pomoćeno</dt>
+              <dd className="order-first text-5xl font-black tracking-tight text-blue-900">500+</dd>
+            </div>
+
+            <div className="flex flex-col gap-y-2">
+              <dt className="text-base leading-7 text-slate-600">Obroka Podijeljeno</dt>
+              <dd className="order-first text-5xl font-black tracking-tight text-blue-900">10k+</dd>
+            </div>
+
+            <div className="flex flex-col gap-y-2">
+              <dt className="text-base leading-7 text-slate-600">Transparentnost</dt>
+              <dd className="order-first text-5xl font-black tracking-tight text-blue-900">100%</dd>
+            </div>
+
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Kartica 1 */}
-            <div className="bg-white p-8 rounded-xl shadow-md text-center hover:shadow-xl transition transform hover:-translate-y-1">
-              <div className="text-5xl mb-4">🤝</div>
-              <h3 className="text-xl font-bold mb-3 text-gray-900">Humanitarni Rad</h3>
-              <p className="text-gray-600">Direktna pomoć ugroženim porodicama hranom, lijekovima i osnovnim potrepštinama.</p>
-            </div>
-
-            {/* Kartica 2 */}
-            <div className="bg-white p-8 rounded-xl shadow-md text-center hover:shadow-xl transition transform hover:-translate-y-1">
-              <div className="text-5xl mb-4">📚</div>
-              <h3 className="text-xl font-bold mb-3 text-gray-900">Edukacija</h3>
-              <p className="text-gray-600">Stipendiranje mladih talenata i nabavka školskog pribora za djecu.</p>
-            </div>
-
-            {/* Kartica 3 */}
-            <div className="bg-white p-8 rounded-xl shadow-md text-center hover:shadow-xl transition transform hover:-translate-y-1">
-              <div className="text-5xl mb-4">🔍</div>
-              <h3 className="text-xl font-bold mb-3 text-gray-900">Transparentnost</h3>
-              <p className="text-gray-600">Svaka marka se računa. Garantujemo potpunu transparentnost svih donacija.</p>
-            </div>
-          </div>
-
         </div>
       </section>
 
-    </div>
+    </main>
   );
 }
