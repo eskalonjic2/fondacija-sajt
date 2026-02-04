@@ -1,105 +1,76 @@
-'use client';
+"use client"; // <--- OVO JE KLJUČNO! Mora biti prva linija.
 
-import { useState } from 'react';
-import Link from 'next/link';
+import Link from "next/link";
+import Image from "next/image";
+import { usePathname } from "next/navigation";
 
-export default function Navbar() {
-  const [open, setOpen] = useState(false);
+const Navbar = () => {
+  const pathname = usePathname();
+
+  const navLinks = [
+    { name: "O nama", href: "/onama" },
+    { name: "Naš tim", href: "/tim" },
+    { name: "Projekti", href: "/projekti" },
+    { name: "Novosti", href: "/blog" },
+    { name: "Kontakt", href: "/kontakt" },
+  ];
 
   return (
-    <header className="sticky top-0 z-50 bg-[#0b1220]/90 backdrop-blur border-b border-white/10">
-      <div className="mx-auto max-w-7xl px-6">
-        <div className="flex h-20 items-center justify-between">
+    <nav className="bg-[#0b1120] border-b border-gray-800 sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-20">
+          
+          {/* LOGO I NAZIV SEKCIJA */}
+          <Link href="/" className="flex items-center gap-3 group">
+            
+            {/* 1. SLIKA LOGA */}
+            <div className="relative w-12 h-12">
+               <Image 
+                 src="/logo.png" 
+                 alt="Logo Fondacije"
+                 fill
+                 className="object-contain group-hover:scale-105 transition duration-300"
+               />
+            </div>
 
-          {/* LOGO */}
-          <Link href="/" className="flex flex-col leading-tight">
-            <span className="text-lg font-bold tracking-wide text-white">
-              DULJEVIĆ
-            </span>
-            <span className="text-xs tracking-widest text-teal-400 uppercase">
-              Humanitarna fondacija
-            </span>
+            {/* 2. TEKST */}
+            <div className="flex flex-col justify-center">
+              <span className="text-white font-light text-xs tracking-[0.3em] uppercase leading-none opacity-90">
+                Fondacija
+              </span>
+              <h1 className="text-2xl font-extrabold text-blue-600 tracking-wide uppercase leading-none mt-1 group-hover:text-blue-500 transition">
+                Duljević
+              </h1>
+            </div>
           </Link>
 
-          {/* DESKTOP MENU */}
-          <nav className="hidden md:flex items-center gap-10 text-sm font-medium">
-            <Link href="/onama" className="text-gray-300 hover:text-white transition">
-              O nama
-            </Link>
-            <Link href="/tim" className="text-gray-300 hover:text-white transition">
-              Naš tim
-            </Link>
-            <Link href="/projekti" className="text-gray-300 hover:text-white transition">
-              Projekti
-            </Link>
-            <Link href="/blog" className="text-gray-300 hover:text-white transition">
-              Novosti
-            </Link>
-            <Link href="/kontakt" className="text-gray-300 hover:text-white transition">
-              Kontakt
-            </Link>
-          </nav>
-
-          {/* CTA + MOBILE */}
-          <div className="flex items-center gap-4">
-            <Link
-              href="/donacije"
-              className="hidden sm:inline-flex rounded-full bg-teal-500 px-6 py-2.5
-                         text-sm font-semibold text-black
-                         hover:bg-teal-400 transition shadow-lg"
-            >
-              Doniraj
-            </Link>
-
-            <button
-              onClick={() => setOpen(!open)}
-              className="md:hidden rounded-lg p-2 text-gray-300 hover:bg-white/10"
-            >
-              {open ? (
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              ) : (
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              )}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* MOBILE MENU */}
-      {open && (
-        <div className="md:hidden bg-[#0b1220] border-t border-white/10">
-          <nav className="px-6 py-6 space-y-4 text-sm">
-            {[
-              ['O nama', '/onama'],
-              ['Naš tim', '/tim'],
-              ['Projekti', '/projekti'],
-              ['Novosti', '/blog'],
-              ['Kontakt', '/kontakt'],
-            ].map(([name, href]) => (
+          {/* DESNA STRANA - LINKOVI (Desktop) */}
+          <div className="hidden md:flex items-center space-x-8">
+            {navLinks.map((link) => (
               <Link
-                key={name}
-                href={href}
-                onClick={() => setOpen(false)}
-                className="block text-gray-300 hover:text-white transition"
+                key={link.name}
+                href={link.href}
+                className={`${
+                  pathname === link.href
+                    ? "text-blue-500 font-medium"
+                    : "text-gray-300 hover:text-white"
+                } transition-colors duration-200 text-sm uppercase tracking-wide`}
               >
-                {name}
+                {link.name}
               </Link>
             ))}
 
             <Link
               href="/donacije"
-              className="block text-center rounded-full bg-teal-500 py-2.5
-                         font-semibold text-black hover:bg-teal-400 transition"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-full font-bold transition duration-300 shadow-lg shadow-blue-900/20"
             >
               Doniraj
             </Link>
-          </nav>
+          </div>
         </div>
-      )}
-    </header>
+      </div>
+    </nav>
   );
-}
+};
+
+export default Navbar;
