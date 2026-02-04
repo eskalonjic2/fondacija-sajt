@@ -49,16 +49,16 @@ export default function Kontakt() {
           
           {/* LIJEVA STRANA - MAPA */}
           <div className="relative h-96 lg:h-auto w-full lg:w-1/2 min-h-[500px]">
-            <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d11505.419286209866!2d18.33126743603403!3d43.86477161803704!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4758c9a623916727%3A0x6b449102b4d91361!2sSarajevo!5e0!3m2!1sbs!2sba!4v1707145000000!5m2!1sbs!2sba"
-              width="100%"
-              height="100%"
-              style={{ border: 0, position: 'absolute', top: 0, left: 0 }}
-              allowFullScreen={true}
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              className="grayscale hover:grayscale-0 transition duration-500"
-            ></iframe>
+         <iframe
+  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d719.5330993704255!2d18.28896866966851!3d43.8323526656252!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4758ca674aec28f9%3A0xb6ee928490b073ef!2sVreoca%2059%2C%20Sarajevo%2071210!5e0!3m2!1sen!2sba!4v1770245242822!5m2!1sen!2sba"
+  width="100%"
+  height="450"
+  style={{ border: 0 }}
+  allowFullScreen={true}
+  loading="lazy"
+  referrerPolicy="no-referrer-when-downgrade"
+  className="w-full h-full grayscale hover:grayscale-0 transition duration-500"
+></iframe>
           </div>
 
           {/* DESNA STRANA - FORMA I PODACI */}
@@ -136,7 +136,7 @@ export default function Kontakt() {
                 <div className="flex items-start space-x-3 text-gray-600">
                   <FaMapMarkerAlt className="mt-1 text-blue-600" />
                   <p className="text-sm leading-relaxed">
-                    Ulica Neka bb,<br />
+                    Ulica Vreoca 59,<br />
                     71000 Sarajevo,<br />
                     Bosna i Hercegovina
                   </p>
@@ -152,7 +152,7 @@ export default function Kontakt() {
                   <div className="flex items-center space-x-3 text-gray-600">
                     <FaEnvelope className="text-blue-600" />
                     <a href="mailto:info@fondacija.ba" className="text-sm hover:text-blue-600 transition">
-                      info@fondacija.ba
+                      fondacija@duljevic.com
                     </a>
                   </div>
                   <div className="flex items-center space-x-3 text-gray-600">
