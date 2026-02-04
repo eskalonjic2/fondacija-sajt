@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "./globals.css"; // ⚠️ OVO JE KLJUČNO: Ovdje se učitava pravi Tailwind
-import Navbar from "./components/Navbar"; // Koristimo @ alias za čišći kod (ili ./components/Navbar)
+import "./globals.css";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer"; // <--- 1. Uvozimo Footer
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -17,21 +18,20 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="bs">
-      <body className={`${inter.className} bg-white text-gray-900`}>
+      {/* 2. Dodali smo 'flex flex-col min-h-screen' da bi footer uvijek bio na dnu */}
+      <body className={`${inter.className} bg-white text-gray-900 flex flex-col min-h-screen`}>
+        
         {/* Navbar ide na vrh */}
         <Navbar />
         
-        {/* Glavni sadržaj */}
-        <main className="min-h-screen">
+        {/* 3. 'flex-grow' gura footer na dno ako je sadržaj kratak */}
+        <main className="flex-grow">
           {children}
         </main>
 
-        {/* Footer */}
-        <footer className="bg-gray-50 border-t border-gray-100 py-8 text-center mt-auto">
-          <p className="text-gray-500 text-sm">
-            &copy; {new Date().getFullYear()} Fondacija Duljević. Sva prava zadržana.
-          </p>
-        </footer>
+        {/* Ovdje se učitava tvoj novi Footer sa ikonama */}
+        <Footer />
+        
       </body>
     </html>
   );
