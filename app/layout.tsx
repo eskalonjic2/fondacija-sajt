@@ -1,13 +1,12 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "./globals.css";
-// Ovdje uvozimo naš novi meni
-import Navbar from "./components/Navbar";
+import "./globals.css"; // ⚠️ OVO JE KLJUČNO: Ovdje se učitava pravi Tailwind
+import Navbar from "./components/Navbar"; // Koristimo @ alias za čišći kod (ili ./components/Navbar)
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Web Stranica Fondacije",
+  title: "Fondacija Duljević",
   description: "Humanitarna fondacija za pomoć onima kojima je najpotrebnije.",
 };
 
@@ -18,18 +17,20 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="bs">
-      <body className={`${inter.className} bg-gray-50 text-gray-900`}>
-        {/* Meni ide na vrh */}
+      <body className={`${inter.className} bg-white text-gray-900`}>
+        {/* Navbar ide na vrh */}
         <Navbar />
         
-        {/* Ovdje se učitava sadržaj svake pojedinačne stranice */}
+        {/* Glavni sadržaj */}
         <main className="min-h-screen">
           {children}
         </main>
 
-        {/* Footer (podnožje) ćemo dodati kasnije, ovdje je samo placeholder */}
-        <footer className="bg-gray-800 text-white p-6 text-center mt-10">
-          <p>&copy; 2024 Fondacija. Sva prava zadržana.</p>
+        {/* Footer */}
+        <footer className="bg-gray-50 border-t border-gray-100 py-8 text-center mt-auto">
+          <p className="text-gray-500 text-sm">
+            &copy; {new Date().getFullYear()} Fondacija Duljević. Sva prava zadržana.
+          </p>
         </footer>
       </body>
     </html>
