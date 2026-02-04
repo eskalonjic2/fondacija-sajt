@@ -16,7 +16,7 @@ export default function Kontakt() {
 
     emailjs.sendForm(
       'fondacija_mail',   // Tvoj Service ID
-      'uh4uqgc',          // Tvoj Template ID
+      'template_or2qfhr',          // Tvoj Template ID
       form.current, 
       '52mZvX-gGt13YjCAX'   // <--- OVDJE ZALIJEPI SVOJ PUBLIC KEY
     )
@@ -25,8 +25,13 @@ export default function Kontakt() {
         form.current?.reset();
     })
     .catch((error) => {
-        console.error("Greška:", error);
-        alert("Došlo je do greške pri slanju. Molimo pokušajte ponovo.");
+        // Ovo će ispisati tačan tekst greške u konzolu
+        console.log("DETALJNA GREŠKA:", error);
+        if (error.text) {
+             alert("Greška servera: " + error.text);
+        } else {
+             alert("Došlo je do greške. Provjeri konzolu (F12).");
+        }
     })
     .finally(() => {
         setLoading(false);
