@@ -1,31 +1,63 @@
+"use client";
+
+import { useRef, useState } from "react";
+import emailjs from "@emailjs/browser";
 import { FaMapMarkerAlt, FaEnvelope, FaPhone } from "react-icons/fa";
 
 export default function Kontakt() {
+  const form = useRef<HTMLFormElement>(null);
+  const [loading, setLoading] = useState(false);
+
+  const posaljiEmail = (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    if (!form.current) return;
+
+    emailjs.sendForm(
+      'fondacija_mail',   // Tvoj Service ID
+      'uh4uqgc',          // Tvoj Template ID
+      form.current, 
+      '52mZvX-gGt13YjCAX'   // <--- OVDJE ZALIJEPI SVOJ PUBLIC KEY
+    )
+    .then(() => {
+        alert("Hvala vam! Vaša poruka je uspješno poslana.");
+        form.current?.reset();
+    })
+    .catch((error) => {
+        console.error("Greška:", error);
+        alert("Došlo je do greške pri slanju. Molimo pokušajte ponovo.");
+    })
+    .finally(() => {
+        setLoading(false);
+    });
+  };
+
   return (
     <div className="bg-white min-h-screen">
       
       {/* Glavni kontejner */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         
-        {/* Grid: Lijevo Mapa, Desno Forma i Info */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 shadow-2xl rounded-3xl overflow-hidden bg-white border border-gray-100">
+        {/* Grid: Koristimo flex-col-reverse na mobitelu da forma bude iznad karte */}
+        <div className="flex flex-col-reverse lg:flex-row shadow-2xl rounded-3xl overflow-hidden bg-white border border-gray-100">
           
           {/* LIJEVA STRANA - MAPA */}
-          <div className="relative h-96 lg:h-auto w-full min-h-[500px]">
+          <div className="relative h-96 lg:h-auto w-full lg:w-1/2 min-h-[500px]">
             <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2876.840243452096!2d18.39414261234567!3d43.85625867911111!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4758c91f63c63197%3A0x6a0c0e0b4c0c0b0!2sSarajevo!5e0!3m2!1sen!2sba!4v1700000000000!5m2!1sen!2sba"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d11505.419286209866!2d18.33126743603403!3d43.86477161803704!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4758c9a623916727%3A0x6b449102b4d91361!2sSarajevo!5e0!3m2!1sbs!2sba!4v1707145000000!5m2!1sbs!2sba"
               width="100%"
               height="100%"
               style={{ border: 0, position: 'absolute', top: 0, left: 0 }}
               allowFullScreen={true}
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
-              className="grayscale hover:grayscale-0 transition duration-500" // Mapa je crno-bijela dok ne pređeš mišem (opcionalno)
+              className="grayscale hover:grayscale-0 transition duration-500"
             ></iframe>
           </div>
 
           {/* DESNA STRANA - FORMA I PODACI */}
-          <div className="p-8 lg:p-12 flex flex-col justify-center">
+          <div className="p-8 lg:p-12 w-full lg:w-1/2 flex flex-col justify-center">
             
             <div className="mb-8">
               <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Kontakt</p>
@@ -35,14 +67,16 @@ export default function Kontakt() {
               </p>
             </div>
 
-            <form className="space-y-6 mb-12">
+            <form ref={form} onSubmit={posaljiEmail} className="space-y-6 mb-12">
               {/* Ime i Prezime */}
               <div>
                 <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
                   Ime i Prezime
                 </label>
                 <input 
+                  name="from_name" // OBAVEZNO ZA EMAILJS
                   type="text" 
+                  required
                   placeholder="Unesite svoje ime" 
                   className="w-full bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-3 transition"
                 />
@@ -54,7 +88,9 @@ export default function Kontakt() {
                   Email Adresa
                 </label>
                 <input 
+                  name="user_email" // OBAVEZNO ZA EMAILJS
                   type="email" 
+                  required
                   placeholder="Unesite svoj email" 
                   className="w-full bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-3 transition"
                 />
@@ -66,15 +102,21 @@ export default function Kontakt() {
                   Poruka
                 </label>
                 <textarea 
+                  name="message" // OBAVEZNO ZA EMAILJS
                   rows={4} 
+                  required
                   placeholder="Kako vam možemo pomoći?" 
                   className="w-full bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-3 transition"
                 ></textarea>
               </div>
 
               {/* Dugme */}
-              <button className="w-full bg-[#0b1120] hover:bg-blue-700 text-white font-bold py-4 rounded-lg transition duration-300 uppercase tracking-widest text-sm shadow-lg">
-                Pošalji Poruku
+              <button 
+                type="submit" 
+                disabled={loading}
+                className={`w-full ${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#0b1120] hover:bg-blue-700'} text-white font-bold py-4 rounded-lg transition duration-300 uppercase tracking-widest text-sm shadow-lg`}
+              >
+                {loading ? "Slanje..." : "Pošalji Poruku"}
               </button>
             </form>
 
