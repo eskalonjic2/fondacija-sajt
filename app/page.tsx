@@ -61,22 +61,22 @@ export default async function Home() {
 <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/60 to-transparent z-10"></div>
 
         <div className="relative z-20 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full">
-            {/* Dodao sam mt-4 na mobilnom da malo spusti tekst ako treba, ili ga ukloni ako je nisko */}
-            <div className="max-w-2xl mt-4 md:mt-0"> 
+            
+            {/* IZMJENA: mt-48 gura sadržaj skroz dole na telefonu. md:mt-0 ga vraća u sredinu na PC-u. */}
+            <div className="max-w-2xl mt-48 md:mt-0"> 
               
-              {/* NASLOV: Na telefonu je sada 4xl (manji), a na kompjuteru ostaje 8xl */}
               <h1 className="flex flex-col text-4xl md:text-8xl font-black tracking-tight leading-tight md:leading-none mb-4 md:mb-6 drop-shadow-lg">
                 <span className="text-white">FONDACIJA</span>
                 <span className="text-blue-500">DULJEVIĆ</span>
               </h1>
               
-              {/* TEKST: Na telefonu sitniji (text-sm) i tanji padding (pl-4) */}
               <p className="text-sm md:text-xl text-gray-200 mb-6 md:mb-8 leading-relaxed font-light border-l-4 border-blue-500 pl-4 md:pl-6 bg-black/20 backdrop-blur-sm py-2 pr-4 rounded-r-lg w-fit max-w-lg">
-  Pružamo ruku onima kojima je najpotrebnija.
-</p>
+                Pružamo ruku onima kojima je najpotrebnija.<br />
+                Kroz stipendije, humanitarnu pomoć i edukaciju gradimo društvo jednakih šansi.<br />
+                Vaša podrška je temelj nečije bolje budućnosti.
+              </p>
               
               <div className="flex flex-col sm:flex-row gap-4">
-                {/* DUGME: Manje na telefonu (px-6 py-3) */}
                 <Link
                   href="/onama"
                   className="inline-flex justify-center items-center px-6 py-3 md:px-8 md:py-4 text-sm md:text-base font-bold text-white border-2 border-white rounded-full hover:bg-white hover:text-slate-900 transition duration-300"
