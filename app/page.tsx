@@ -1,14 +1,16 @@
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import { FaArrowRight, FaHandHoldingHeart, FaRegNewspaper, FaUsers, FaHandshake } from "react-icons/fa";
-import StatsSection from "./components/StatsSection"; // Prilagodi putanju ako treba
-import RevealSection from "./components/RevealSection"; // <--- NOVI IMPORT
+import StatsSection from "./components/StatsSection"; 
+import RevealSection from "./components/RevealSection"; 
+import Image from "next/image"; // Preporučujem korištenje Next Image komponente umjesto img taga
 
-// Funkcija za dobijanje 3 poslednje novosti
+// --- IZMJENA: FILTRIRANJE SAMO NOVOSTI ---
 async function getLatestNews() {
   const { data: posts, error } = await supabase
     .from("posts")
     .select("*")
+    .eq("type", "news") // <--- OVO JE KLJUČNO: Filtriramo da uzme samo novosti, ne projekte
     .order("created_at", { ascending: false })
     .limit(3);
 
@@ -27,7 +29,6 @@ export default async function Home() {
     <main className="min-h-screen bg-white text-gray-800 font-sans">
       
     {/* 1. HERO SEKCIJA - SLIDESHOW */}
-    {/* Hero NE stavljamo u RevealSection jer želimo da se vidi odmah čim se sajt učita */}
       <section className="relative h-[600px] lg:h-[800px] flex items-center overflow-hidden">
         
         <style dangerouslySetInnerHTML={{__html: `
@@ -196,10 +197,12 @@ export default async function Home() {
                     {/* Slika Novosti */}
                     <div className="h-48 bg-gray-200 relative overflow-hidden">
                         {post.image_url ? (
-                          <img 
+                            // Koristimo Next Image za bolju optimizaciju, ali može i img ako želiš
+                           <Image 
                             src={post.image_url} 
                             alt={post.title} 
-                            className="w-full h-full object-cover transition duration-500 group-hover:scale-105"
+                            fill
+                            className="object-cover transition duration-500 group-hover:scale-105"
                           />
                         ) : (
                           <div className="flex items-center justify-center h-full text-gray-400">
@@ -208,7 +211,7 @@ export default async function Home() {
                         )}
                         
                         {post.category && (
-                          <div className="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded text-xs font-bold text-gray-800 uppercase">
+                          <div className="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded text-xs font-bold text-gray-800 uppercase z-10">
                             {post.category}
                           </div>
                         )}
@@ -222,9 +225,12 @@ export default async function Home() {
                         {post.title}
                       </h3>
                       <p className="text-gray-600 text-sm line-clamp-3 mb-4 flex-grow">
-                        {post.content ? post.content.substring(0, 100) + "..." : post.excerpt}
+                        {/* Ako nema content, prikaži prazan string, da ne pukne */}
+                        {post.content ? post.content.substring(0, 100) + "..." : ""}
                       </p>
-                      <Link href={`/blog/${post.slug || post.id}`} className="text-sm font-bold text-[#be1e2d] hover:underline mt-auto">
+                      
+                      {/* LINK SADA VODI NA /blog/[slug] KAO ŠTO SMO PODESILI */}
+                      <Link href={`/blog/${post.slug}`} className="text-sm font-bold text-[#be1e2d] hover:underline mt-auto">
                         Pročitaj više
                       </Link>
                     </div>
@@ -238,7 +244,7 @@ export default async function Home() {
             )}
 
             <div className="mt-8 text-center md:hidden">
-                <Link href="/novosti" className="text-blue-600 font-bold hover:text-blue-800 inline-flex items-center gap-2">
+                <Link href="/blog" className="text-blue-600 font-bold hover:text-blue-800 inline-flex items-center gap-2">
                   Sve novosti <FaArrowRight />
                 </Link>
             </div>
