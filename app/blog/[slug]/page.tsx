@@ -7,12 +7,28 @@ export default async function BlogPost({ params }: { params: { slug: string } })
   const resolvedParams = await params;
   const { slug } = resolvedParams;
 
-  const { data: post, error } = await supabase
+  // 1. Prvo pokušamo pronaći post gdje se kolona 'slug' poklapa sa URL-om
+  let { data: post, error } = await supabase
     .from("posts")
     .select("*")
-    .eq("id", slug)
+    .eq("slug", slug)
     .single();
 
+  // 2. Ako nismo našli po slugu, a URL parametar je broj (npr. stari ID), tražimo po ID-u
+  if (!post && !isNaN(Number(slug))) {
+    const { data: postById, error: errorById } = await supabase
+      .from("posts")
+      .select("*")
+      .eq("id", slug)
+      .single();
+
+    if (postById) {
+      post = postById;
+      error = null; // Poništavamo grešku jer smo ga našli
+    }
+  }
+
+  // Ako i dalje nema posta ili ima greške -> 404
   if (error || !post) {
     return notFound();
   }
@@ -39,7 +55,7 @@ export default async function BlogPost({ params }: { params: { slug: string } })
           </Link>
 
           <p className="text-gray-500 text-sm mb-2">
-            {new Date(post.created_at).toLocaleDateString("hr-HR")}
+            {new Date(post.created_at).toLocaleDateString("bs-BA")}
           </p>
 
           <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-6">

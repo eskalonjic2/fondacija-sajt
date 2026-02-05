@@ -8,12 +8,13 @@ import { useRouter } from "next/navigation";
 export default function Admin() {
   const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null); // Ako je null, kreiramo novi. Ako ima ID, editujemo.
+  const [editingId, setEditingId] = useState<string | null>(null);
   const router = useRouter();
 
   // Form podaci
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [type, setType] = useState("news"); // <--- NOVO: Default je 'news'
   const [coverImage, setCoverImage] = useState<File | null>(null);
   const [galleryImages, setGalleryImages] = useState<FileList | null>(null);
 
@@ -32,8 +33,8 @@ export default function Admin() {
     setEditingId(post.id);
     setTitle(post.title);
     setContent(post.content);
-    // Slike ne resetujemo ovdje jer su fajlovi, ali korisnik može dodati nove
-    window.scrollTo(0, 0); // Vrati na vrh stranice
+    setType(post.type || "news"); // <--- NOVO: Učitaj tip posta
+    window.scrollTo(0, 0); 
   }
 
   // Funkcija za brisanje
@@ -44,7 +45,7 @@ export default function Admin() {
     if (error) alert("Greška pri brisanju: " + error.message);
     else {
       alert("Post obrisan!");
-      fetchPosts(); // Osvježi listu
+      fetchPosts(); 
     }
   }
 
@@ -53,6 +54,7 @@ export default function Admin() {
     setEditingId(null);
     setTitle("");
     setContent("");
+    setType("news"); // <--- NOVO: Resetuj na news
     setCoverImage(null);
     setGalleryImages(null);
   }
@@ -88,19 +90,21 @@ export default function Admin() {
         }
       }
 
+      // NOVO: Generisanje slug-a (URL-a) od naslova
+      const slug = title.toLowerCase().replace(/ /g, "-").replace(/[^\w-]+/g, "");
+
       // 3. Upisivanje u bazu (INSERT ili UPDATE)
       if (editingId) {
         // --- EDIT MODE ---
         const updates: any = {
           title,
           content,
+          type, // <--- NOVO: Ažuriraj tip
           updated_at: new Date().toISOString(),
         };
         // Ako je nova slika uploadovana, ažuriraj i nju
         if (coverUrl) updates.image_url = coverUrl;
-        // Ako su nove slike galerije dodane, dodaj ih u niz (ili zamijeni, ovdje dodajemo na postojeće)
-        // Napomena: Za naprednije brisanje pojedinačnih slika iz galerije trebao bi nam kompleksniji UI.
-        // Ovdje ćemo samo PREGAZITI galeriju ako su dodane nove slike, ili ostaviti staru ako nisu.
+        // Ako su nove slike galerije dodane, dodaj ih
         if (galleryUrls.length > 0) updates.gallery_urls = galleryUrls;
 
         const { error } = await supabase.from("posts").update(updates).eq("id", editingId);
@@ -113,16 +117,18 @@ export default function Admin() {
           {
             title,
             content,
+            type, // <--- NOVO: Spremi tip
+            slug, // <--- NOVO: Spremi slug
             image_url: coverUrl,
-            gallery_urls: galleryUrls, // Ovo je nova kolona
+            gallery_urls: galleryUrls, 
           },
         ]);
         if (error) throw error;
-        alert("Novi post objavljen!");
+        alert(type === 'project' ? "Projekat uspješno objavljen!" : "Novost uspješno objavljena!");
       }
 
       resetForm();
-      fetchPosts(); // Osvježi listu dole
+      fetchPosts(); 
     } catch (error: any) {
       alert("Greška: " + error.message);
     } finally {
@@ -138,7 +144,7 @@ export default function Admin() {
         <div className="bg-white p-6 rounded-xl shadow-md mb-10">
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-2xl font-bold text-gray-800">
-              {editingId ? "Uredi Post" : "Admin Panel - Dodaj Novosti"}
+              {editingId ? "Uredi Post" : "Admin Panel - Dodaj Sadržaj"}
             </h1>
             {editingId && (
               <button onClick={resetForm} className="text-sm text-gray-500 hover:text-red-500">
@@ -147,7 +153,38 @@ export default function Admin() {
             )}
           </div>
 
-          <form onSubmit={handlePublish} className="space-y-4">
+          <form onSubmit={handlePublish} className="space-y-6">
+            
+            {/* NOVO: ODABIR TIPA (NOVOST ILI PROJEKAT) */}
+            <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
+                <label className="block text-sm font-bold text-gray-700 mb-2">Tip Objave:</label>
+                <div className="flex gap-6">
+                    <label className="flex items-center cursor-pointer">
+                        <input 
+                            type="radio" 
+                            name="postType" 
+                            value="news" 
+                            checked={type === "news"} 
+                            onChange={(e) => setType(e.target.value)}
+                            className="w-5 h-5 text-blue-600 focus:ring-blue-500"
+                        />
+                        <span className="ml-2 text-gray-700 font-medium">Novost (Blog)</span>
+                    </label>
+
+                    <label className="flex items-center cursor-pointer">
+                        <input 
+                            type="radio" 
+                            name="postType" 
+                            value="project" 
+                            checked={type === "project"} 
+                            onChange={(e) => setType(e.target.value)}
+                            className="w-5 h-5 text-green-600 focus:ring-green-500"
+                        />
+                        <span className="ml-2 text-gray-700 font-medium">Projekat</span>
+                    </label>
+                </div>
+            </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700">Naslov</label>
               <input
@@ -173,7 +210,7 @@ export default function Admin() {
                 <label className="block text-sm font-medium text-gray-700">Galerija (Dodatne slike)</label>
                 <input
                   type="file"
-                  multiple // Ovo dozvoljava više slika odjednom
+                  multiple 
                   onChange={(e) => setGalleryImages(e.target.files)}
                   className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
                 />
@@ -197,14 +234,14 @@ export default function Admin() {
                 loading ? "bg-gray-400" : editingId ? "bg-green-600 hover:bg-green-700" : "bg-blue-600 hover:bg-blue-700"
               }`}
             >
-              {loading ? "Radim..." : editingId ? "Sačuvaj Izmjene" : "Objavi Novost"}
+              {loading ? "Radim..." : editingId ? "Sačuvaj Izmjene" : (type === 'project' ? "Objavi Projekat" : "Objavi Novost")}
             </button>
           </form>
         </div>
 
         {/* LISTA POSTOJEĆIH POSTOVA */}
         <div className="bg-white p-6 rounded-xl shadow-md">
-          <h2 className="text-xl font-bold mb-4 text-gray-800">Postojeće Novosti</h2>
+          <h2 className="text-xl font-bold mb-4 text-gray-800">Svi unosi (Novosti i Projekti)</h2>
           <div className="space-y-4">
             {posts.map((post) => (
               <div key={post.id} className="flex items-center justify-between p-4 border-b last:border-0 hover:bg-gray-50">
@@ -216,7 +253,13 @@ export default function Admin() {
                   )}
                   <div>
                     <h3 className="font-bold text-gray-900">{post.title}</h3>
-                    <p className="text-xs text-gray-500">{new Date(post.created_at).toLocaleDateString("hr-HR")}</p>
+                    <div className="flex gap-2 text-xs mt-1">
+                        <span className="text-gray-500">{new Date(post.created_at).toLocaleDateString("hr-HR")}</span>
+                        {/* NOVO: PRIKAZ TIPA */}
+                        <span className={`px-2 py-0.5 rounded font-bold uppercase text-[10px] ${post.type === 'project' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
+                            {post.type === 'project' ? 'PROJEKAT' : 'NOVOST'}
+                        </span>
+                    </div>
                   </div>
                 </div>
                 
@@ -237,7 +280,7 @@ export default function Admin() {
               </div>
             ))}
             
-            {posts.length === 0 && <p className="text-center text-gray-500">Nema objavljenih novosti.</p>}
+            {posts.length === 0 && <p className="text-center text-gray-500">Nema objavljenih stavki.</p>}
           </div>
         </div>
 
