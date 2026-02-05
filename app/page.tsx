@@ -269,73 +269,74 @@ export default async function Home() {
         </div>
       </section>
 
-     {/* 6. DVA NAČINA ZA POMOĆ (2 u 1 Sekcija) */}
-      <section className="relative w-full">
-        <div className="grid md:grid-cols-2">
+     {/* 6. DVA NAČINA ZA POMOĆ (2 u 1 Sekcija - Zaobljeni Dizajn) */}
+      <section className="relative w-full py-12 lg:py-24 bg-white">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           
-          {/* LIJEVA STRANA: VOLONTIRANJE I DOGAĐAJI (Plava) */}
-          <div className="relative bg-slate-900 text-white p-12 lg:p-24 flex flex-col justify-center overflow-hidden">
-            {/* Dekorativni krug u pozadini */}
-            <div className="absolute top-0 left-0 w-64 h-64 bg-blue-600 rounded-full mix-blend-overlay filter blur-3xl opacity-20"></div>
+          {/* OVDJE JE PROMJENA: Dodali smo zaobljene ivice (rounded-3xl) i overflow-hidden */}
+          <div className="grid md:grid-cols-2 rounded-[2.5rem] overflow-hidden shadow-2xl">
             
-            <div className="relative z-10">
-              <div className="inline-flex items-center px-3 py-1 rounded-full bg-blue-800/50 border border-blue-700 text-blue-200 text-xs font-bold uppercase tracking-wide mb-6">
-                <FaUsers className="mr-2" /> Uključi se
-              </div>
+            {/* LIJEVA STRANA: VOLONTIRANJE (Plava) */}
+            <div className="relative bg-slate-900 text-white p-10 lg:p-20 flex flex-col justify-center overflow-hidden">
+              <div className="absolute top-0 left-0 w-64 h-64 bg-blue-600 rounded-full mix-blend-overlay filter blur-3xl opacity-20"></div>
               
-              <h2 className="text-3xl lg:text-4xl font-black mb-6 leading-tight">
-                Želite dati doprinos radu Fondacije?
-              </h2>
-              
-              <div className="space-y-6 text-gray-300 text-lg mb-10">
-                <p>
-                  <strong className="text-white block mb-1">Pridružite se:</strong> 
-                  Postanite volonter i aktivno učestvujte u našim projektima, pružajući neprocenjiv doprinos ostvarivanju naših ciljeva.
-                </p>
-                <p>
-                  <strong className="text-white block mb-1">Podržite naše događaje:</strong> 
-                  Učestvujte u radionicama, seminarima i događajima koji omogućavaju povezivanje i sticanje novih vještina.
-                </p>
+              <div className="relative z-10">
+                <div className="inline-flex items-center px-3 py-1 rounded-full bg-blue-800/50 border border-blue-700 text-blue-200 text-xs font-bold uppercase tracking-wide mb-6">
+                  <FaUsers className="mr-2" /> Uključi se
+                </div>
+                
+                <h2 className="text-3xl lg:text-4xl font-black mb-6 leading-tight">
+                  Želite dati doprinos radu Fondacije?
+                </h2>
+                
+                <div className="space-y-6 text-gray-300 text-lg mb-10">
+                  <p>
+                    <strong className="text-white block mb-1">Pridružite se:</strong> 
+                    Postanite volonter i aktivno učestvujte u našim projektima, pružajući neprocenjiv doprinos.
+                  </p>
+                  <p>
+                    <strong className="text-white block mb-1">Podržite nas:</strong> 
+                    Učestvujte u radionicama i događajima koji omogućavaju povezivanje i sticanje novih vještina.
+                  </p>
+                </div>
+
+                <Link
+                  href="/kontakt"
+                  className="inline-flex items-center justify-center bg-white text-slate-900 text-base font-bold py-4 px-8 rounded-2xl shadow-lg hover:bg-blue-50 transition transform hover:-translate-y-1"
+                >
+                  Postani Volonter <FaArrowRight className="ml-2" />
+                </Link>
               </div>
-
-              <Link
-                href="/kontakt"
-                className="inline-flex items-center justify-center bg-white text-slate-900 text-base font-bold py-4 px-8 rounded-lg shadow-lg hover:bg-blue-50 transition transform hover:-translate-y-1"
-              >
-                Postani Volonter <FaArrowRight className="ml-2" />
-              </Link>
             </div>
-          </div>
 
-          {/* DESNA STRANA: DONACIJE (Crvena) */}
-          <div className="relative bg-[#be1e2d] text-white p-12 lg:p-24 flex flex-col justify-center overflow-hidden">
-            {/* Dekorativni uzorak */}
-            <div className="absolute bottom-0 right-0 w-80 h-80 bg-red-900 rounded-full mix-blend-multiply filter blur-3xl opacity-30"></div>
+            {/* DESNA STRANA: DONACIJE (Crvena) */}
+            <div className="relative bg-[#be1e2d] text-white p-10 lg:p-20 flex flex-col justify-center overflow-hidden">
+              <div className="absolute bottom-0 right-0 w-80 h-80 bg-red-900 rounded-full mix-blend-multiply filter blur-3xl opacity-30"></div>
 
-            <div className="relative z-10">
-              <div className="inline-flex items-center px-3 py-1 rounded-full bg-red-800/50 border border-red-400 text-white text-xs font-bold uppercase tracking-wide mb-6">
-                <FaHandHoldingHeart className="mr-2" /> Podrži nas
+              <div className="relative z-10">
+                <div className="inline-flex items-center px-3 py-1 rounded-full bg-red-800/50 border border-red-400 text-white text-xs font-bold uppercase tracking-wide mb-6">
+                  <FaHandHoldingHeart className="mr-2" /> Podrži nas
+                </div>
+
+                <h2 className="text-3xl lg:text-4xl font-black mb-6 leading-tight">
+                  Vaša donacija mijenja živote.
+                </h2>
+
+                <p className="text-red-100 text-lg mb-10 leading-relaxed">
+                  Vaša donacija omogućava Fondaciji da unaprijedi realizaciju svojih misija, 
+                  stvarajući dugoročne promjene. Svaka marka ide direktno onima kojima je najpotrebnija.
+                </p>
+
+                <Link
+                  href="/donacije"
+                  className="inline-flex items-center justify-center bg-slate-900 text-white text-base font-bold py-4 px-8 rounded-2xl shadow-xl hover:bg-slate-800 transition transform hover:-translate-y-1 border border-slate-800"
+                >
+                  DONIRAJ SADA 
+                </Link>
               </div>
-
-              <h2 className="text-3xl lg:text-4xl font-black mb-6 leading-tight">
-                Vaša donacija mijenja živote.
-              </h2>
-
-              <p className="text-red-100 text-lg mb-10 leading-relaxed">
-                Vaša donacija omogućava Fondaciji da unaprijedi realizaciju svojih misija, 
-                stvarajući dugoročne promjene u zajednici i podržavajući razvoj mladih, 
-                žena i preduzetnika. Svaka marka ide direktno onima kojima je najpotrebnija.
-              </p>
-
-              <Link
-                href="/donacije"
-                className="inline-flex items-center justify-center bg-slate-900 text-white text-base font-bold py-4 px-8 rounded-lg shadow-xl hover:bg-slate-800 transition transform hover:-translate-y-1 border border-slate-800"
-              >
-                DONIRAJ SADA 
-              </Link>
             </div>
-          </div>
 
+          </div>
         </div>
       </section>
 
