@@ -58,24 +58,28 @@ export default async function Home() {
           <div className="slide-bg delay-2" style={{ backgroundImage: "url('/hero/hero2.webp')" }}></div>
           <div className="slide-bg delay-3" style={{ backgroundImage: "url('/hero/hero4.webp')" }}></div>
         </div>
-
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/60 to-transparent z-10"></div>
+<div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/60 to-transparent z-10"></div>
 
         <div className="relative z-20 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full">
-            <div className="max-w-2xl">
-              <h1 className="flex flex-col text-6xl md:text-8xl font-black tracking-tight leading-none mb-6 drop-shadow-lg">
+            {/* Dodao sam mt-4 na mobilnom da malo spusti tekst ako treba, ili ga ukloni ako je nisko */}
+            <div className="max-w-2xl mt-4 md:mt-0"> 
+              
+              {/* NASLOV: Na telefonu je sada 4xl (manji), a na kompjuteru ostaje 8xl */}
+              <h1 className="flex flex-col text-4xl md:text-8xl font-black tracking-tight leading-tight md:leading-none mb-4 md:mb-6 drop-shadow-lg">
                 <span className="text-white">FONDACIJA</span>
                 <span className="text-blue-500">DULJEVIĆ</span>
               </h1>
               
-              <p className="text-lg md:text-xl text-gray-200 mb-8 leading-relaxed font-light border-l-4 border-blue-500 pl-6 bg-black/20 backdrop-blur-sm py-2 rounded-r-lg">
+              {/* TEKST: Na telefonu sitniji (text-sm) i tanji padding (pl-4) */}
+              <p className="text-sm md:text-xl text-gray-200 mb-6 md:mb-8 leading-relaxed font-light border-l-4 border-blue-500 pl-4 md:pl-6 bg-black/20 backdrop-blur-sm py-2 rounded-r-lg">
                 Pružamo ruku onima kojima je najpotrebnija. Kroz stipendije, humanitarnu pomoć i edukaciju gradimo društvo jednakih šansi. Vaša podrška je temelj nečije bolje budućnosti.
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4">
+                {/* DUGME: Manje na telefonu (px-6 py-3) */}
                 <Link
                   href="/onama"
-                  className="inline-flex justify-center items-center px-8 py-4 text-base font-bold text-white border-2 border-white rounded-full hover:bg-white hover:text-slate-900 transition duration-300"
+                  className="inline-flex justify-center items-center px-6 py-3 md:px-8 md:py-4 text-sm md:text-base font-bold text-white border-2 border-white rounded-full hover:bg-white hover:text-slate-900 transition duration-300"
                 >
                   Upoznaj nas <FaArrowRight className="ml-2" />
                 </Link>
