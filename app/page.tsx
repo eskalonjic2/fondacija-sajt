@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient"; // Koristimo tvoj postojeći klijent
 import { FaArrowRight, FaHandHoldingHeart, FaRegNewspaper, FaUsers, FaHandshake } from "react-icons/fa";
+import StatsSection from "./components/StatsSection"; 
+// ILI ako ti ne radi @/ probaj: import StatsSection from "../components/StatsSection";
 
 // Funkcija za dobijanje 3 poslednje novosti
 async function getLatestNews() {
@@ -25,76 +27,76 @@ export default async function Home() {
   return (
     <main className="min-h-screen bg-white text-gray-800 font-sans">
       
-     {/* 1. HERO SEKCIJA */}
-      <section className="relative bg-white pt-10 pb-20 lg:pt-20 lg:pb-32 overflow-hidden">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="lg:grid lg:grid-cols-2 lg:gap-16 items-center">
-            
-            {/* Tekst */}
-            <div className="text-center lg:text-left mb-12 lg:mb-0">
-              <div className="inline-flex items-center px-3 py-1 rounded-full bg-blue-50 text-blue-800 text-xs font-bold uppercase tracking-wide mb-6">
-                <span className="w-2 h-2 bg-blue-600 rounded-full mr-2"></span>
-                Vizija Budućnosti
-              </div>
+    {/* 1. HERO SEKCIJA - SLIDESHOW */}
+      <section className="relative h-[600px] lg:h-[800px] flex items-center overflow-hidden">
+        
+        {/* CSS ANIMAJCIJA ZA SLAJDER (Unutar style taga radi jednostavnosti) */}
+        <style dangerouslySetInnerHTML={{__html: `
+          @keyframes fadeZoom {
+            0% { opacity: 0; transform: scale(1.1); }
+            5% { opacity: 1; transform: scale(1); }
+            33% { opacity: 1; transform: scale(1); }
+            38% { opacity: 0; transform: scale(1.1); }
+            100% { opacity: 0; }
+          }
+          .slide-bg {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-size: cover;
+            background-position: center;
+            opacity: 0;
+            animation: fadeZoom 15s infinite;
+          }
+          .delay-1 { animation-delay: 0s; }
+          .delay-2 { animation-delay: 5s; }
+          .delay-3 { animation-delay: 10s; }
+        `}} />
+
+        {/* POZADINSKE SLIKE (3 slike koje se mijenjaju) */}
+        <div className="absolute inset-0 z-0">
+          {/* Slika 1 */}
+          <div className="slide-bg delay-1" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=2070&auto=format&fit=crop')" }}></div>
+          {/* Slika 2 */}
+          <div className="slide-bg delay-2" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=2070&auto=format&fit=crop')" }}></div>
+          {/* Slika 3 */}
+          <div className="slide-bg delay-3" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1559027615-cd4628902d4a?q=80&w=2074&auto=format&fit=crop')" }}></div>
+        </div>
+
+        {/* OVERLAY (Sjena/Odsjaj sa lijeve strane da se tekst vidi) */}
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/60 to-transparent z-10"></div>
+
+        {/* SADRŽAJ (Tekst preko slika) */}
+        <div className="relative z-20 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full">
+            <div className="max-w-2xl">
               
-              <h1 className="text-5xl lg:text-7xl font-black tracking-tight text-slate-900 mb-6 leading-tight">
-                Stvaramo prilike <br/>
-                <span className="text-blue-900">za vaš uspjeh.</span>
+              {/* Naslov */}
+              <h1 className="flex flex-col text-6xl md:text-8xl font-black tracking-tight leading-none mb-6 drop-shadow-lg">
+                <span className="text-white">FONDACIJA</span>
+                <span className="text-blue-500">DULJEVIĆ</span>
               </h1>
               
-              <p className="text-lg text-slate-600 mb-8 leading-relaxed max-w-lg mx-auto lg:mx-0">
-                Posvećeni smo osnaživanju mladih, žena i preduzetnika kroz obrazovanje i podršku. 
-                Naša misija je izgradnja zajednice jednakih šansi u kojoj svako može ostvariti svoj puni potencijal.
+              {/* Opis */}
+              <p className="text-lg md:text-xl text-gray-200 mb-8 leading-relaxed font-light border-l-4 border-blue-500 pl-6 bg-black/20 backdrop-blur-sm py-2 rounded-r-lg">
+                Pružamo ruku onima kojima je najpotrebnija. Kroz stipendije, humanitarnu pomoć i edukaciju gradimo društvo jednakih šansi. Vaša podrška je temelj nečije bolje budućnosti.
               </p>
               
-              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+              {/* Dugmad */}
+              <div className="flex flex-col sm:flex-row gap-4">
+              
                 <Link
                   href="/onama"
-                  className="inline-flex justify-center items-center px-8 py-4 text-base font-bold text-slate-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition duration-300"
+                  className="inline-flex justify-center items-center px-8 py-4 text-base font-bold text-white border-2 border-white rounded-full hover:bg-white hover:text-slate-900 transition duration-300"
                 >
-                  Upoznajte našu misiju <FaArrowRight className="ml-2 text-sm" />
+                  Upoznaj nas <FaArrowRight className="ml-2" />
                 </Link>
               </div>
-            </div>
 
-            {/* Slika */}
-            <div className="relative">
-              <div className="aspect-[4/3] bg-gray-200 rounded-3xl overflow-hidden shadow-2xl relative group">
-                 {/* Ovdje možeš staviti pravi <img> tag */}
-                 <div className="absolute inset-0 flex items-center justify-center bg-slate-100 text-slate-400">
-                    <span className="text-xl font-bold">SLIKA FONDACIJE</span>
-                 </div>
-                 <div className="absolute -bottom-6 -left-6 w-24 h-24 bg-[#be1e2d] rounded-full flex items-center justify-center text-white font-bold z-10 shadow-xl">
-                    <div className="text-center text-xs leading-tight">
-                        Od<br/><span className="text-lg">2020.</span><br/>godine
-                    </div>
-                 </div>
-              </div>
             </div>
-
-          </div>
         </div>
       </section>
 
-      {/* 2. STATISTIKA */}
-      <section className="bg-slate-50 py-16 border-y border-slate-200">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          <div className="grid grid-cols-1 gap-8 text-center sm:grid-cols-3">
-            <div className="p-6 bg-white rounded-2xl shadow-sm border border-slate-100">
-              <dt className="text-sm font-medium text-slate-500 uppercase tracking-wide">Porodica Pomoćeno</dt>
-              <dd className="mt-2 text-4xl font-black text-blue-900">500+</dd>
-            </div>
-            <div className="p-6 bg-white rounded-2xl shadow-sm border border-slate-100">
-              <dt className="text-sm font-medium text-slate-500 uppercase tracking-wide">Obroka Podijeljeno</dt>
-              <dd className="mt-2 text-4xl font-black text-blue-900">10k+</dd>
-            </div>
-            <div className="p-6 bg-white rounded-2xl shadow-sm border border-slate-100">
-              <dt className="text-sm font-medium text-slate-500 uppercase tracking-wide">Transparentnost</dt>
-              <dd className="mt-2 text-4xl font-black text-blue-900">100%</dd>
-            </div>
-          </div>
-        </div>
-      </section>
+    {/* 2. STATISTIKA (Animirana) */}
+      <StatsSection />
 
    {/* 3. NAŠ TIM (Ljudi iza misije) */}
       <section className="py-24 bg-white overflow-hidden">
