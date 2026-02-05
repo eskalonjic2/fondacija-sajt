@@ -71,9 +71,9 @@ export default async function Home() {
               </h1>
               
               {/* TEKST: Na telefonu sitniji (text-sm) i tanji padding (pl-4) */}
-              <p className="text-sm md:text-xl text-gray-200 mb-6 md:mb-8 leading-relaxed font-light border-l-4 border-blue-500 pl-4 md:pl-6 bg-black/20 backdrop-blur-sm py-2 rounded-r-lg">
-                Pružamo ruku onima kojima je najpotrebnija.
-              </p>
+              <p className="text-sm md:text-xl text-gray-200 mb-6 md:mb-8 leading-relaxed font-light border-l-4 border-blue-500 pl-4 md:pl-6 bg-black/20 backdrop-blur-sm py-2 pr-4 rounded-r-lg w-fit max-w-lg">
+  Pružamo ruku onima kojima je najpotrebnija.
+</p>
               
               <div className="flex flex-col sm:flex-row gap-4">
                 {/* DUGME: Manje na telefonu (px-6 py-3) */}
