@@ -53,9 +53,10 @@ export default async function Home() {
         `}} />
 
         <div className="absolute inset-0 z-0">
-          <div className="slide-bg delay-1" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=2070&auto=format&fit=crop')" }}></div>
-          <div className="slide-bg delay-2" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=2070&auto=format&fit=crop')" }}></div>
-          <div className="slide-bg delay-3" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1559027615-cd4628902d4a?q=80&w=2074&auto=format&fit=crop')" }}></div>
+          {/* OVDJE SU TVOJE SLIKE IZ PUBLIC/HERO FOLDERA */}
+          <div className="slide-bg delay-1" style={{ backgroundImage: "url('/hero/hero1.webp')" }}></div>
+          <div className="slide-bg delay-2" style={{ backgroundImage: "url('/hero/hero2.webp')" }}></div>
+          <div className="slide-bg delay-3" style={{ backgroundImage: "url('/hero/hero4.webp')" }}></div>
         </div>
 
         <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/60 to-transparent z-10"></div>

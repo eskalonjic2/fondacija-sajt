@@ -111,8 +111,8 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
     <div className="min-h-screen bg-white">
       {/* GLAVNA SLIKA I NASLOV (Tvoj postojeći kod) */}
       <div className="max-w-4xl mx-auto py-10 px-4">
-       <Link href="/blog" className="text-blue-600 hover:underline mb-4 inline-block">
-  ← Nazad na sve novosti
+     <Link href="/projekti" className="text-blue-600 hover:underline mb-4 inline-block">
+  ← Nazad na sve projekte
 </Link>
         
         <p className="text-gray-500 text-sm mb-2">

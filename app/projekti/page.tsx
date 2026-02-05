@@ -77,7 +77,7 @@ export default async function Projekti() {
                     </p>
                     
                     {/* Klik vodi na isti template kao blog post, što je OK */}
-                    <Link href={`/blog/${project.slug || project.id}`} className="inline-flex items-center font-bold text-green-700 hover:text-green-900 transition mt-auto">
+                    <Link href={`/projekti/${project.slug || project.id}`} className="inline-flex items-center font-bold text-green-700 hover:text-green-900 transition mt-auto">
                         Saznaj više <FaArrowRight className="ml-2 text-sm" />
                     </Link>
                     </div>
