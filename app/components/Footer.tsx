@@ -38,7 +38,7 @@ const Footer = () => {
           <div className="flex flex-col items-center justify-center space-y-4">
             <div className="flex items-center gap-3 text-gray-400 group hover:text-blue-500 transition cursor-pointer">
                <FaMapMarkerAlt className="text-blue-600 group-hover:scale-110 transition" />
-               <span className="text-sm">Ulica Vreoca 59, 71000 Sarajevo</span>
+               <span className="text-sm">Adresa: Vreoca 59, Ilidža 71210 Kanton Sarajevo</span>
             </div>
             <div className="flex items-center gap-3 text-gray-400 group hover:text-blue-500 transition cursor-pointer">
                <FaPhone className="text-blue-600 group-hover:scale-110 transition" />
@@ -46,7 +46,7 @@ const Footer = () => {
             </div>
             <div className="flex items-center gap-3 text-gray-400 group hover:text-blue-500 transition cursor-pointer">
                <FaEnvelope className="text-blue-600 group-hover:scale-110 transition" />
-               <a href="mailto:info@fondacija.ba" className="text-sm">fondacija@duljevic.com</a>
+               <a href="mailto:fondacija@duljevic.com" className="text-sm">fondacija@duljevic.com</a>
             </div>
           </div>
 

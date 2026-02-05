@@ -136,8 +136,8 @@ export default function Kontakt() {
                 <div className="flex items-start space-x-3 text-gray-600">
                   <FaMapMarkerAlt className="mt-1 text-blue-600" />
                   <p className="text-sm leading-relaxed">
-                    Ulica Vreoca 59,<br />
-                    71000 Sarajevo,<br />
+                     Vreoca 59,<br />
+                    Ilidža 71210 Kanton Sarajevo,<br />
                     Bosna i Hercegovina
                   </p>
                 </div>
@@ -151,7 +151,7 @@ export default function Kontakt() {
                 <div className="space-y-3">
                   <div className="flex items-center space-x-3 text-gray-600">
                     <FaEnvelope className="text-blue-600" />
-                    <a href="mailto:info@fondacija.ba" className="text-sm hover:text-blue-600 transition">
+                    <a href="mailto:fondacija@duljevic.com" className="text-sm hover:text-blue-600 transition">
                       fondacija@duljevic.com
                     </a>
                   </div>
