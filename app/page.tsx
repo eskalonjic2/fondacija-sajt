@@ -72,7 +72,7 @@ export default async function Home() {
               
               {/* TEKST: Na telefonu sitniji (text-sm) i tanji padding (pl-4) */}
               <p className="text-sm md:text-xl text-gray-200 mb-6 md:mb-8 leading-relaxed font-light border-l-4 border-blue-500 pl-4 md:pl-6 bg-black/20 backdrop-blur-sm py-2 rounded-r-lg">
-                Pružamo ruku onima kojima je najpotrebnija. Kroz stipendije, humanitarnu pomoć i edukaciju gradimo društvo jednakih šansi. Vaša podrška je temelj nečije bolje budućnosti.
+                Pružamo ruku onima kojima je najpotrebnija.
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4">
