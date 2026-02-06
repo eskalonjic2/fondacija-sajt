@@ -52,16 +52,14 @@ const Footer = () => {
 
           {/* 3. DRUŠTVENE MREŽE (Desna strana) */}
           <div className="flex justify-center md:justify-end space-x-6">
-            <a href="#" className="text-gray-400 hover:text-blue-600 text-2xl transition duration-300 transform hover:scale-110 hover:-translate-y-1">
+            <a href="https://www.facebook.com/share/1DTbok8b1s/" className="text-gray-400 hover:text-blue-600 text-2xl transition duration-300 transform hover:scale-110 hover:-translate-y-1">
               <FaFacebook />
             </a>
-            <a href="#" className="text-gray-400 hover:text-pink-600 text-2xl transition duration-300 transform hover:scale-110 hover:-translate-y-1">
-              <FaInstagram />
-            </a>
-            <a href="#" className="text-gray-400 hover:text-blue-700 text-2xl transition duration-300 transform hover:scale-110 hover:-translate-y-1">
+           
+            <a href="https://www.linkedin.com/company/fondacija-duljevi%C4%87/" className="text-gray-400 hover:text-blue-700 text-2xl transition duration-300 transform hover:scale-110 hover:-translate-y-1">
               <FaLinkedin />
             </a>
-            <a href="#" className="text-gray-400 hover:text-red-600 text-2xl transition duration-300 transform hover:scale-110 hover:-translate-y-1">
+            <a href="https://youtube.com/@pesterpanoramaretrospektiv5074?si=YX5wR7u0Uh9FxkEF" className="text-gray-400 hover:text-red-600 text-2xl transition duration-300 transform hover:scale-110 hover:-translate-y-1">
               <FaYoutube />
             </a>
           </div>
