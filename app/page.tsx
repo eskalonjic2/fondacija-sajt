@@ -92,13 +92,13 @@ export default async function Home() {
       <RevealSection>
         <StatsSection />
       </RevealSection>
-
-   {/* 3. NAŠ TIM */}
+{/* 3. NAŠ TIM */}
       <RevealSection>
         <section className="py-24 bg-white overflow-hidden">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <div className="lg:grid lg:grid-cols-2 lg:gap-16 items-center">
               
+              {/* LIJEVA STRANA: TEKST */}
               <div className="mb-12 lg:mb-0">
                 <div className="inline-flex items-center px-3 py-1 rounded-full bg-blue-50 text-blue-800 text-xs font-bold uppercase tracking-wide mb-6">
                   <FaUsers className="mr-2" /> Naša snaga
@@ -121,21 +121,35 @@ export default async function Home() {
                 </Link>
               </div>
 
+              {/* DESNA STRANA: SLIKE (Hero 8 i Hero 6) */}
               <div className="relative">
+                {/* Dekorativni krug u pozadini */}
                 <div className="absolute -top-4 -right-4 w-72 h-72 bg-[#be1e2d]/10 rounded-full blur-3xl"></div>
-                <div className="grid grid-cols-2 gap-4 relative z-10">
-                  <div className="bg-slate-100 rounded-2xl h-48 lg:h-56 w-full flex items-center justify-center overflow-hidden shadow-sm border border-slate-200 mt-8">
-                     <FaUsers className="text-slate-300 text-4xl" />
+                
+                <div className="grid grid-cols-2 gap-6 relative z-10 items-start">
+                  
+                {/* PRVA SLIKA - hero8.jpeg (Spuštena dolje sa mt-12) */}
+                  <div className="relative bg-slate-100 rounded-2xl h-64 lg:h-80 w-full overflow-hidden shadow-lg border border-slate-200 mt-12 transform transition-transform duration-500 hover:scale-[1.02]">
+                      <Image 
+                        src="/hero8.jpeg" 
+                        alt="Hako Duljević" 
+                        fill 
+                        // IZMJENA: Dodato object-[35%_center] da povuče sliku u lijevo
+                        // Ako treba još lijevo, stavi 25% ili 15%
+                        className="object-cover object-[35%_center]" 
+                      />
                   </div>
-                  <div className="bg-slate-100 rounded-2xl h-48 lg:h-56 w-full flex items-center justify-center overflow-hidden shadow-sm border border-slate-200">
-                     <FaUsers className="text-slate-300 text-4xl" />
+
+                  {/* DRUGA SLIKA - hero6.jpeg (Standardna pozicija gore) */}
+                  <div className="relative bg-slate-100 rounded-2xl h-64 lg:h-80 w-full overflow-hidden shadow-lg border border-slate-200 transform transition-transform duration-500 hover:scale-[1.02]">
+                      <Image 
+                        src="/hero6.jpeg" 
+                        alt="Damir Mahmutović" 
+                        fill 
+                        className="object-cover" 
+                      />
                   </div>
-                  <div className="bg-slate-100 rounded-2xl h-48 lg:h-56 w-full flex items-center justify-center overflow-hidden shadow-sm border border-slate-200 mt-4 lg:mt-0">
-                     <FaUsers className="text-slate-300 text-4xl" />
-                  </div>
-                  <div className="bg-slate-100 rounded-2xl h-48 lg:h-56 w-full flex items-center justify-center overflow-hidden shadow-sm border border-slate-200 -mt-8">
-                     <FaUsers className="text-slate-300 text-4xl" />
-                  </div>
+
                 </div>
               </div>
 

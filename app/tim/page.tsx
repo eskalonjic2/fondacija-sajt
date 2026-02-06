@@ -44,16 +44,19 @@ export default function Tim() {
                         <div className="relative mb-6 rounded-2xl overflow-hidden shadow-md border-[4px] border-gray-50 mx-auto">
                             
                             {/* OVDJE SMO UBACILI SLIKU */}
-                            <div className="relative w-full h-96">
-                                <Image 
-                                    src="/hero8.jpeg"      // Tvoja slika
-                                    alt="Hako Duljević" 
-                                    fill                   // Rasteže sliku
-                                    className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
-                                />
-                                {/* Gradient */}
-                                <div className="absolute inset-0 bg-gradient-to-t from-gray-900/20 to-transparent z-10"></div>
-                            </div> 
+<div className="relative w-full h-96">
+    <Image 
+        src="/hero8.jpeg"      // Tvoja slika
+        alt="Hako Duljević" 
+        fill                   // Rasteže sliku
+        // IZMJENA: Smanjili smo procenat da bi se slika pomerila LIJEVO
+        // 50% je sredina. 
+        // Manji broj (25%, 35%) pomjera fokus u lijevo.
+        className="object-cover object-[35%_center] transition-transform duration-700 group-hover:scale-105"
+    />
+    {/* Gradient */}
+    <div className="absolute inset-0 bg-gradient-to-t from-gray-900/20 to-transparent z-10"></div>
+</div>
 
                         </div>
                         {/* Podaci */}
@@ -105,16 +108,18 @@ export default function Tim() {
                         <div className="relative mb-6 rounded-2xl overflow-hidden shadow-md border-[4px] border-gray-50 mx-auto">
                             
                             {/* OKVIR I SLIKA */}
-                            <div className="w-full h-96 bg-gray-200 relative">
-                                <Image 
-                                    src="/hero7.jpeg"      // Tvoja slika
-                                    alt="Emir Skalonjić" 
-                                    fill 
-                                    className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
-                                />
-                                {/* Gradient preko slike */}
-                                <div className="absolute inset-0 bg-gradient-to-t from-gray-900/20 to-transparent z-10"></div>
-                            </div>
+<div className="w-full h-96 bg-gray-200 relative">
+    <Image 
+        src="/hero7.jpeg"      // Tvoja slika
+        alt="Emir Skalonjić" 
+        fill 
+        // IZMJENA: 65% -> 80%
+        // Ovo prikazuje još više desne strane slike.
+        className="object-cover object-[80%_center] transition-transform duration-700 group-hover:scale-105"
+    />
+    {/* Gradient preko slike */}
+    <div className="absolute inset-0 bg-gradient-to-t from-gray-900/20 to-transparent z-10"></div>
+</div>
 
                         </div>
                         <div className="px-4 pb-4 text-center">
