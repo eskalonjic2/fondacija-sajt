@@ -70,12 +70,11 @@ export default async function Home() {
     <span className="text-blue-500">DULJEVIĆ</span>
 </h1>
               
-              <p className="text-sm md:text-xl text-gray-200 mb-6 md:mb-8 leading-relaxed font-light border-l-4 border-blue-500 pl-4 md:pl-6 bg-black/20 backdrop-blur-sm py-2 pr-4 rounded-r-lg w-fit max-w-lg">
-                Pružamo ruku onima kojima je najpotrebnija.<br />
-                Kroz stipendije, humanitarnu pomoć i edukaciju gradimo društvo jednakih šansi.<br />
-                Vaša podrška je temelj nečije bolje budućnosti.
-              </p>
-              
+        <p className="text-sm md:text-xl text-gray-200 mb-6 md:mb-8 leading-relaxed font-light border-l-4 border-blue-500 pl-4 md:pl-6 max-w-lg">
+    Pružamo ruku onima kojima je najpotrebnija.<br />
+    Kroz stipendije, humanitarnu pomoć i edukaciju gradimo društvo jednakih šansi.<br />
+    Vaša podrška je temelj nečije bolje budućnosti.
+</p> 
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link
                   href="/onama"
