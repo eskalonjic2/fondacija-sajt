@@ -1,4 +1,4 @@
-import { FaFacebook, FaLinkedin } from "react-icons/fa";
+import { FaFacebook, FaLinkedin, FaInstagram } from "react-icons/fa";
 import Image from "next/image";
 
 export default function Tim() {
@@ -66,7 +66,7 @@ export default function Tim() {
                             <div className="w-12 h-1 bg-gray-100 mx-auto mb-6 rounded-full group-hover:bg-blue-500 transition-colors duration-300"></div>
                             <div className="flex justify-center space-x-5">
                                 <a href="https://www.facebook.com/share/1G9qWDbVdp/" target="_blank" className="text-gray-400 hover:text-blue-600 text-2xl transition duration-300 hover:scale-110"><FaFacebook /></a>
-                               
+                               <a href="https://www.instagram.com/hakoduljevic?igsh=dXNzdmhnejVzOW0y" target="_blank" className="text-gray-400 hover:text-pink-600 text-2xl transition duration-300 hover:scale-110"><FaInstagram /></a>
                             </div>
                         </div>
                     </div>
@@ -95,6 +95,9 @@ export default function Tim() {
                             <div className="flex justify-center space-x-5">
                                 <a href="https://www.facebook.com/share/1htWy5UMEH/" target="_blank" className="text-gray-400 hover:text-blue-600 text-2xl transition duration-300 hover:scale-110"><FaFacebook /></a>
                                 <a href="https://www.linkedin.com/in/damir-mahmutovi%C4%87-23494628a" target="_blank" className="text-gray-400 hover:text-blue-700 text-2xl transition duration-300 hover:scale-110"><FaLinkedin /></a>
+                                <a href="https://www.instagram.com/damir.mahmutovic_?igsh=MXY2YWJ6NWYxZTMxMg==" target="_blank" className="text-gray-400 hover:text-pink-600 text-2xl transition duration-300 hover:scale-110">
+  <FaInstagram />
+</a>
                             </div>
                         </div>
                     </div>
@@ -129,28 +132,14 @@ export default function Tim() {
                             <div className="flex justify-center space-x-5">
                                 <a href="https://www.facebook.com/share/1DpXeKebUN/" className="text-gray-400 hover:text-blue-600 text-2xl transition duration-300 hover:scale-110"><FaFacebook /></a>
                                 <a href="https://www.linkedin.com/in/emir-skalonjic-a50093295?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" className="text-gray-400 hover:text-blue-700 text-2xl transition duration-300 hover:scale-110"><FaLinkedin /></a>
+                                <a href="https://www.instagram.com/emir.skalonjic?utm_source=qr&igsh=NnV5dTQ2bTFuZmx1" target="_blank" className="text-gray-400 hover:text-pink-600 text-2xl transition duration-300 hover:scale-110">
+  <FaInstagram />
+</a>
                             </div>
                         </div>
                     </div>
 
-                    {/* Volonter 2 */}
-                    <div className="group bg-white rounded-[2rem] p-5 border border-white/10 shadow-xl transition-all duration-300 hover:-translate-y-3 hover:shadow-2xl hover:shadow-blue-900/20 relative">
-                        <div className="relative mb-6 rounded-2xl overflow-hidden shadow-md border-[4px] border-gray-50 mx-auto">
-                            {/* IZMJENA: h-80 -> h-96 za višu sliku */}
-                            <div className="w-full h-96 bg-gray-200 object-cover bg-center transition-transform duration-700 group-hover:scale-105 relative">
-                                <div className="absolute inset-0 bg-gradient-to-t from-gray-900/20 to-transparent"></div>
-                            </div>
-                        </div>
-                        <div className="px-4 pb-4 text-center">
-                            <h3 className="font-extrabold text-2xl text-slate-900 mb-1">Volonter 2</h3>
-                            <p className="text-blue-600 font-bold text-xs uppercase tracking-widest mb-5">Pozicija / Uloga</p>
-                            <div className="w-12 h-1 bg-gray-100 mx-auto mb-6 rounded-full group-hover:bg-blue-500 transition-colors duration-300"></div>
-                            <div className="flex justify-center space-x-5">
-                                <a href="#" className="text-gray-400 hover:text-blue-600 text-2xl"><FaFacebook /></a>
-                                <a href="#" className="text-gray-400 hover:text-blue-700 text-2xl"><FaLinkedin /></a>
-                            </div>
-                        </div>
-                    </div>
+                 
 
                 </div>
 
