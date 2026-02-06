@@ -4,36 +4,40 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { FaMicrophone, FaYoutube, FaNewspaper, FaProjectDiagram } from "react-icons/fa"; 
 
 export default function Admin() {
   const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState(null);
   const router = useRouter();
 
-  // Form podaci
+  // Osnovni podaci
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [type, setType] = useState("news");
+  const [type, setType] = useState("news"); // Default je news, ali se mijenja na klik
   
+  // PODCAST SPECIFIČNI PODACI
+  const [videoDuration, setVideoDuration] = useState("");
+  const [guestName, setGuestName] = useState("");
+  const [youtubeLink, setYoutubeLink] = useState("");
+
   // Slike State
   const [coverImage, setCoverImage] = useState<File | null>(null);
-  const [coverPreview, setCoverPreview] = useState<string | null>(null); // Za prikaz prije upload-a
+  const [coverPreview, setCoverPreview] = useState<string | null>(null);
+  const [galleryFiles, setGalleryFiles] = useState<File[]>([]); 
+  const [existingGalleryUrls, setExistingGalleryUrls] = useState<string[]>([]); 
 
-  const [galleryFiles, setGalleryFiles] = useState<File[]>([]); // Novi fajlovi za upload
-  const [existingGalleryUrls, setExistingGalleryUrls] = useState<string[]>([]); // Stare slike iz baze
-
-  // Učitaj sve postove kad se stranica otvori
   useEffect(() => {
     fetchPosts();
   }, []);
 
   async function fetchPosts() {
+    // Admin treba da vidi SVE postove (i novosti i podcaste), zato ovdje nema filtera
     const { data } = await supabase.from("posts").select("*").order("created_at", { ascending: false });
     if (data) setPosts(data);
   }
 
-  // --- LOGOUT FUNKCIJA ---
   const handleLogout = async () => {
     await supabase.auth.signOut();
     router.push('/login');
@@ -41,66 +45,70 @@ export default function Admin() {
   };
 
   // --- HANDLERS ZA SLIKE ---
-  
-  // 1. Naslovna slika
-  const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCoverChange = (e: any) => {
     const file = e.target.files?.[0];
     if (file) {
       setCoverImage(file);
-      setCoverPreview(URL.createObjectURL(file)); // Prikaži odmah
+      setCoverPreview(URL.createObjectURL(file));
     }
   };
 
-  // 2. Galerija (Multiple)
-  const handleGalleryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleGalleryChange = (e: any) => {
     if (e.target.files) {
-      const newFiles = Array.from(e.target.files);
-      setGalleryFiles((prev) => [...prev, ...newFiles]); // Dodaj nove na postojeće odabrane
+      const newFiles = Array.from(e.target.files) as File[];
+      setGalleryFiles((prev) => [...prev, ...newFiles]);
     }
   };
 
-  // Brisanje slike iz PREGLEDA (prije nego se sačuva)
   const removeGalleryFile = (index: number) => {
     setGalleryFiles(prev => prev.filter((_, i) => i !== index));
   };
 
-  // Brisanje POSTOJEĆE slike iz galerije (dok uređujemo)
   const removeExistingImage = (urlToRemove: string) => {
     setExistingGalleryUrls(prev => prev.filter(url => url !== urlToRemove));
   };
 
-  // Funkcija za popunjavanje forme kad klikneš "Uredi"
+  // --- EDIT ---
   function handleEdit(post: any) {
     setEditingId(post.id);
     setTitle(post.title);
     setContent(post.content);
+    // Ovdje osiguravamo da se tip ispravno učita iz baze
     setType(post.type || "news");
     
-    // Postavi postojeće slike
-    setCoverPreview(post.image_url); // Prikazi staru naslovnu
-    setExistingGalleryUrls(post.gallery_urls || []); // Učitaj stare slike galerije
+    // Učitaj slike
+    setCoverPreview(post.image_url);
+    setExistingGalleryUrls(post.gallery_urls || []);
     
-    // Resetuj nove fajlove
+    // Učitaj podcast podatke (ako postoje)
+    setVideoDuration(post.video_duration || "");
+    setGuestName(post.guest_name || "");
+    setYoutubeLink(post.youtube_link || "");
+
     setCoverImage(null);
     setGalleryFiles([]);
-    
     window.scrollTo(0, 0); 
   }
 
-  // Reset forme
+  // --- RESET ---
   function resetForm() {
     setEditingId(null);
     setTitle("");
     setContent("");
-    setType("news");
+    setType("news"); // Vraća na default nakon objave
     setCoverImage(null);
     setCoverPreview(null);
     setGalleryFiles([]);
     setExistingGalleryUrls([]);
+    
+    // Reset podcast polja
+    setVideoDuration("");
+    setGuestName("");
+    setYoutubeLink("");
   }
 
-  // Funkcija za brisanje posta
-  async function handleDelete(id: string) {
+  // --- DELETE ---
+  async function handleDelete(id: any) {
     if (!confirm("Da li ste sigurni da želite obrisati ovaj post?")) return;
     const { error } = await supabase.from("posts").delete().eq("id", id);
     if (error) alert("Greška: " + error.message);
@@ -110,26 +118,27 @@ export default function Admin() {
     }
   }
 
-  const handlePublish = async (e: React.FormEvent) => {
+  // --- PUBLISH / UPDATE ---
+  const handlePublish = async (e: any) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      let finalCoverUrl = coverPreview; // Ako ne mijenjamo, ostaje stara (ili null)
-      let finalGalleryUrls = [...existingGalleryUrls]; // Počinjemo sa onim što već imamo
+      let finalCoverUrl = coverPreview; 
+      let finalGalleryUrls = [...existingGalleryUrls]; 
 
-      // 1. Upload Naslovne slike (SAMO ako je odabrana nova)
+      // 1. Upload Naslovne slike
       if (coverImage) {
         const fileName = `cover-${Date.now()}-${coverImage.name}`;
         const { error } = await supabase.storage.from("images").upload(fileName, coverImage);
         if (error) throw error;
-        
         const { data: publicData } = supabase.storage.from("images").getPublicUrl(fileName);
         finalCoverUrl = publicData.publicUrl;
       }
 
-      // 2. Upload Novih slika za Galeriju
-      if (galleryFiles.length > 0) {
+      // 2. Upload Galerije (Samo ako NIJE podcast)
+      // Podcast ne bi trebao imati galeriju, pa ovo preskačemo ako je type === podcast
+      if (type !== 'podcast' && galleryFiles.length > 0) {
         for (const file of galleryFiles) {
           const fileName = `gallery-${Date.now()}-${file.name}`;
           const { error } = await supabase.storage.from("images").upload(fileName, file);
@@ -142,27 +151,32 @@ export default function Admin() {
 
       const slug = title.toLowerCase().replace(/ /g, "-").replace(/[^\w-]+/g, "");
 
-      // 3. Upisivanje u bazu
+      // 3. Priprema podataka
+      // OVDJE JE KLJUČ: 'type' varijabla određuje gdje će se post prikazati
       const postData = {
         title,
         content,
-        type,
+        type: type, // Ovo je najvažnije polje za razdvajanje novosti i podcasta
         slug,
         image_url: finalCoverUrl,
-        gallery_urls: finalGalleryUrls, // Ovo sada sadrži i stare i nove slike
+        // Ako je podcast, forsiramo praznu galeriju da ne bude zabune
+        gallery_urls: type === 'podcast' ? [] : finalGalleryUrls, 
         updated_at: new Date().toISOString(),
+        
+        // Podcast specifična polja (biće null ako je novost)
+        video_duration: type === 'podcast' ? videoDuration : null,
+        guest_name: type === 'podcast' ? guestName : null,
+        youtube_link: type === 'podcast' ? youtubeLink : null,
       };
 
       if (editingId) {
-        // UPDATE
         const { error } = await supabase.from("posts").update(postData).eq("id", editingId);
         if (error) throw error;
         alert("Izmjene sačuvane!");
       } else {
-        // INSERT
         const { error } = await supabase.from("posts").insert([postData]);
         if (error) throw error;
-        alert("Uspješno objavljeno!");
+        alert(type === 'podcast' ? "Podcast uspješno objavljen!" : "Novost uspješno objavljena!");
       }
 
       resetForm();
@@ -178,109 +192,124 @@ export default function Admin() {
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-5xl mx-auto">
         
-        {/* HEADER SA LOGOUT DUGMETOM */}
+        {/* HEADER */}
         <div className="flex justify-between items-center mb-8">
              <h1 className="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
-             <button 
-                onClick={handleLogout}
-                className="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-900 transition flex items-center gap-2"
-             >
-                <span>Odjavi se</span>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
-                </svg>
+             <button onClick={handleLogout} className="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-900 transition flex items-center gap-2">
+                 <span>Odjavi se</span>
              </button>
         </div>
         
-        {/* FORMA ZA UNOS / EDIT */}
+        {/* FORMA */}
         <div className="bg-white p-8 rounded-xl shadow-lg mb-10 border border-gray-100">
           <div className="flex justify-between items-center mb-6 border-b pb-4">
             <h2 className="text-xl font-semibold text-gray-700">
-              {editingId ? "Uredi Post" : "Kreiraj Novi Sadržaj"}
+              {editingId ? "Uredi Sadržaj" : "Kreiraj Novi Sadržaj"}
             </h2>
             {editingId && (
-              <button onClick={resetForm} className="text-sm text-red-500 hover:text-red-700 font-medium">
-                ✕ Otkaži uređenje
-              </button>
+              <button onClick={resetForm} className="text-sm text-red-500 hover:text-red-700 font-medium">✕ Otkaži</button>
             )}
           </div>
 
           <form onSubmit={handlePublish} className="space-y-8">
             
-            {/* TIP OBJAVE */}
-            <div className="bg-blue-50 p-5 rounded-lg border border-blue-100">
-                <label className="block text-sm font-bold text-gray-700 mb-3">Tip Objave:</label>
-                <div className="flex gap-8">
-                    <label className="flex items-center cursor-pointer group">
+            {/* 1. TIP OBJAVE - OVDJE BIRATE GDJE IDE POST */}
+            <div className="bg-slate-50 p-5 rounded-lg border border-slate-200">
+                <label className="block text-sm font-bold text-gray-700 mb-3">Izaberite tip objave:</label>
+                <div className="flex flex-wrap gap-6">
+                    <label className="flex items-center cursor-pointer group p-3 bg-white rounded border hover:border-blue-400 transition">
                         <input type="radio" name="postType" value="news" checked={type === "news"} onChange={(e) => setType(e.target.value)} className="w-5 h-5 text-blue-600 focus:ring-blue-500" />
-                        <span className="ml-2 text-gray-700 font-medium group-hover:text-blue-600">Novost</span>
+                        <span className="ml-2 text-gray-700 font-medium group-hover:text-blue-600 flex items-center gap-2">
+                           <FaNewspaper /> Novost
+                        </span>
                     </label>
-                    <label className="flex items-center cursor-pointer group">
+                    <label className="flex items-center cursor-pointer group p-3 bg-white rounded border hover:border-green-400 transition">
                         <input type="radio" name="postType" value="project" checked={type === "project"} onChange={(e) => setType(e.target.value)} className="w-5 h-5 text-green-600 focus:ring-green-500" />
-                        <span className="ml-2 text-gray-700 font-medium group-hover:text-green-600">Projekat</span>
+                        <span className="ml-2 text-gray-700 font-medium group-hover:text-green-600 flex items-center gap-2">
+                           <FaProjectDiagram /> Projekat
+                        </span>
+                    </label>
+                    {/* PODCAST RADIO */}
+                    <label className="flex items-center cursor-pointer group p-3 bg-white rounded border hover:border-purple-400 transition">
+                        <input type="radio" name="postType" value="podcast" checked={type === "podcast"} onChange={(e) => setType(e.target.value)} className="w-5 h-5 text-purple-600 focus:ring-purple-500" />
+                        <span className="ml-2 text-gray-700 font-medium group-hover:text-purple-600 flex items-center gap-2">
+                             <FaMicrophone /> Podcast
+                        </span>
                     </label>
                 </div>
             </div>
 
-            {/* NASLOV */}
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">Naslov</label>
-              <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="Unesite naslov..." required />
-            </div>
-
-            {/* SEKCIJA ZA SLIKE */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              
-              {/* 1. NASLOVNA SLIKA */}
-              <div className="bg-gray-50 p-4 rounded-lg border border-dashed border-gray-300">
-                <label className="block text-sm font-bold text-gray-700 mb-2">Naslovna Slika (Jedna)</label>
-                <input type="file" onChange={handleCoverChange} accept="image/*" className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer" />
-                
-                {/* Preview Naslovne */}
-                {coverPreview && (
-                    <div className="mt-4 relative h-48 w-full rounded-lg overflow-hidden border border-gray-200">
-                        <Image src={coverPreview} alt="Cover preview" fill className="object-cover" />
-                    </div>
-                )}
-              </div>
-              
-              {/* 2. GALERIJA */}
-              <div className="bg-gray-50 p-4 rounded-lg border border-dashed border-gray-300">
-                <label className="block text-sm font-bold text-gray-700 mb-2">Galerija (Više slika)</label>
-                <input 
-                    type="file" 
-                    multiple 
-                    accept="image/*"
-                    onChange={handleGalleryChange} 
-                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-600 file:text-white hover:file:bg-green-700 cursor-pointer" 
-                />
-
-                {/* Preview Galerije (Mreža) */}
-                <div className="mt-4 grid grid-cols-3 gap-2">
-                    {/* Postojeće slike (iz baze) */}
-                    {existingGalleryUrls.map((url, idx) => (
-                        <div key={`old-${idx}`} className="relative h-20 w-full rounded overflow-hidden group border border-gray-200">
-                            <Image src={url} alt="Gallery item" fill className="object-cover" />
-                            <button type="button" onClick={() => removeExistingImage(url)} className="absolute top-0 right-0 bg-red-600 text-white w-6 h-6 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition">✕</button>
-                        </div>
-                    ))}
-                    
-                    {/* Nove slike (spremne za upload) */}
-                    {galleryFiles.map((file, idx) => (
-                        <div key={`new-${idx}`} className="relative h-20 w-full rounded overflow-hidden group border-2 border-green-500">
-                            <Image src={URL.createObjectURL(file)} alt="New upload" fill className="object-cover" />
-                            <button type="button" onClick={() => removeGalleryFile(idx)} className="absolute top-0 right-0 bg-red-600 text-white w-6 h-6 flex items-center justify-center text-xs">✕</button>
-                        </div>
-                    ))}
+            {/* 2. OSNOVNI PODACI (Naslov i Slika) */}
+            <div className="grid md:grid-cols-2 gap-8">
+                <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">
+                        {type === 'podcast' ? "Naziv Epizode" : "Naslov"}
+                    </label>
+                    <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Unesite naslov..." required />
                 </div>
-                <p className="text-xs text-gray-500 mt-2">Zeleni okvir označava nove slike spremne za upload.</p>
-              </div>
+
+                {/* Cover Slika */}
+                <div>
+                      <label className="block text-sm font-bold text-gray-700 mb-2">
+                        {type === 'podcast' ? "Thumbnail Epizode (Slika)" : "Naslovna Slika"}
+                      </label>
+                      <input type="file" onChange={handleCoverChange} accept="image/*" className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer" />
+                      {coverPreview && (
+                        <div className="mt-2 relative h-32 w-full rounded-lg overflow-hidden border border-gray-200">
+                           <Image src={coverPreview} alt="Cover preview" fill className="object-cover" />
+                        </div>
+                      )}
+                </div>
             </div>
 
-            {/* SADRŽAJ */}
+            {/* 3. PODCAST SPECIFIČNA POLJA (Prikazuju se samo ako je type === 'podcast') */}
+            {type === 'podcast' && (
+                <div className="bg-purple-50 p-6 rounded-xl border border-purple-100 grid md:grid-cols-3 gap-6 animate-fadeIn">
+                    <div className="md:col-span-1">
+                        <label className="block text-sm font-bold text-gray-700 mb-2">Trajanje (npr. 45 min)</label>
+                        <input type="text" value={videoDuration} onChange={(e) => setVideoDuration(e.target.value)} className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none" placeholder="45" />
+                    </div>
+                    <div className="md:col-span-1">
+                        <label className="block text-sm font-bold text-gray-700 mb-2">Ime Gosta</label>
+                        <input type="text" value={guestName} onChange={(e) => setGuestName(e.target.value)} className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none" placeholder="Ime Prezime" />
+                    </div>
+                    <div className="md:col-span-1">
+                        <label className="block text-sm font-bold text-gray-700 mb-2">YouTube Link</label>
+                        <div className="relative">
+                            <FaYoutube className="absolute left-3 top-3.5 text-red-600 text-xl" />
+                            <input type="text" value={youtubeLink} onChange={(e) => setYoutubeLink(e.target.value)} className="w-full pl-10 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none" placeholder="https://youtube.com/..." />
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* 4. GALERIJA (Samo za Novosti i Projekte - NEMA ZA PODCAST) */}
+            {type !== 'podcast' && (
+                <div className="bg-gray-50 p-4 rounded-lg border border-dashed border-gray-300">
+                    <label className="block text-sm font-bold text-gray-700 mb-2">Galerija slika</label>
+                    <input type="file" multiple accept="image/*" onChange={handleGalleryChange} className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-600 file:text-white hover:file:bg-green-700 cursor-pointer" />
+                    
+                    <div className="mt-4 grid grid-cols-4 gap-2">
+                        {existingGalleryUrls.map((url, idx) => (
+                            <div key={`old-${idx}`} className="relative h-16 w-full rounded overflow-hidden group border border-gray-200">
+                                <Image src={url} alt="Gallery item" fill className="object-cover" />
+                                <button type="button" onClick={() => removeExistingImage(url)} className="absolute top-0 right-0 bg-red-600 text-white w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition">✕</button>
+                            </div>
+                        ))}
+                        {galleryFiles.map((file, idx) => (
+                            <div key={`new-${idx}`} className="relative h-16 w-full rounded overflow-hidden border-2 border-green-500">
+                                <Image src={URL.createObjectURL(file)} alt="New upload" fill className="object-cover" />
+                                <button type="button" onClick={() => removeGalleryFile(idx)} className="absolute top-0 right-0 bg-red-600 text-white w-5 h-5 flex items-center justify-center text-xs">✕</button>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {/* 5. OPIS / SADRŽAJ */}
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">Sadržaj Teksta</label>
-              <textarea value={content} onChange={(e) => setContent(e.target.value)} className="w-full p-4 border border-gray-300 rounded-lg h-48 focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="Pišite ovdje..." required />
+              <label className="block text-sm font-bold text-gray-700 mb-2">Opis / Tekst</label>
+              <textarea value={content} onChange={(e) => setContent(e.target.value)} className="w-full p-4 border border-gray-300 rounded-lg h-40 focus:ring-2 focus:ring-blue-500 outline-none" placeholder={type === 'podcast' ? "Kratak opis o čemu se radi u epizodi..." : "Pišite ovdje..."} required />
             </div>
 
             {/* SUBMIT BUTTON */}
@@ -288,40 +317,45 @@ export default function Admin() {
               type="submit"
               disabled={loading}
               className={`w-full py-4 rounded-lg text-white font-bold text-lg shadow-md hover:shadow-xl transition transform hover:-translate-y-0.5 ${
-                loading ? "bg-gray-400 cursor-not-allowed" : editingId ? "bg-green-600 hover:bg-green-700" : "bg-blue-600 hover:bg-blue-700"
+                loading ? "bg-gray-400 cursor-not-allowed" 
+                : editingId ? "bg-green-600 hover:bg-green-700" 
+                : type === 'podcast' ? "bg-purple-600 hover:bg-purple-700" 
+                : "bg-blue-600 hover:bg-blue-700"
               }`}
             >
-              {loading ? (
-                  <span className="flex items-center justify-center gap-2">
-                      <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                      Obrađujem...
-                  </span>
-              ) : editingId ? "Sačuvaj Izmjene" : (type === 'project' ? "Objavi Projekat" : "Objavi Novost")}
+              {loading ? "Obrađujem..." : editingId ? "Sačuvaj Izmjene" : (type === 'podcast' ? "Objavi Podcast" : type === 'project' ? "Objavi Projekat" : "Objavi Novost")}
             </button>
           </form>
         </div>
 
-        {/* LISTA POSTOVA */}
+        {/* LISTA SVIH POSTOVA */}
         <div className="bg-white rounded-xl shadow-md overflow-hidden">
           <div className="p-6 border-b bg-gray-50">
-             <h2 className="text-xl font-bold text-gray-800">Svi unosi (Novosti i Projekti)</h2>
+             <h2 className="text-xl font-bold text-gray-800">Svi unosi (Baza podataka)</h2>
+             <p className="text-sm text-gray-500 mt-1">Ovdje vidite sve unose. Na sajtu se prikazuju odvojeno.</p>
           </div>
           <div className="divide-y divide-gray-100">
             {posts.map((post) => (
               <div key={post.id} className="flex items-center justify-between p-6 hover:bg-gray-50 transition">
                 <div className="flex items-center gap-5">
                   <div className="relative w-20 h-20 rounded-lg overflow-hidden bg-gray-200 flex-shrink-0 border border-gray-200">
-                     {post.image_url ? (
-                        <Image src={post.image_url} alt="thumb" fill className="object-cover" />
-                     ) : (
-                        <div className="flex items-center justify-center h-full text-gray-400 text-xs">No Image</div>
-                     )}
+                      {post.image_url ? (
+                          <Image src={post.image_url} alt="thumb" fill className="object-cover" />
+                      ) : (
+                          <div className="flex items-center justify-center h-full text-gray-400 text-xs">No Image</div>
+                      )}
                   </div>
                   <div>
                     <h3 className="font-bold text-lg text-gray-900 mb-1">{post.title}</h3>
                     <div className="flex items-center gap-3 text-sm">
-                        <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wide ${post.type === 'project' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}`}>
-                            {post.type === 'project' ? 'Projekat' : 'Novost'}
+                        <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wide flex items-center gap-1
+                            ${post.type === 'project' ? 'bg-green-100 text-green-800' 
+                            : post.type === 'podcast' ? 'bg-purple-100 text-purple-800' 
+                            : 'bg-blue-100 text-blue-800'}`}>
+                            {post.type === 'podcast' && <FaMicrophone />}
+                            {post.type === 'project' && <FaProjectDiagram />}
+                            {post.type === 'news' && <FaNewspaper />}
+                            {post.type === 'project' ? 'Projekat' : post.type === 'podcast' ? 'Podcast' : 'Novost'}
                         </span>
                         <span className="text-gray-500">{new Date(post.created_at).toLocaleDateString("bs-BA")}</span>
                     </div>

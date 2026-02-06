@@ -1,25 +1,25 @@
 "use client";
 
-import { useState } from "react"; // 1. Dodali smo useState
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-// 2. Dodali smo ikonice za meni (hamburger i X za zatvaranje)
 import { FaBars, FaTimes } from "react-icons/fa"; 
 
 const Navbar = () => {
-  const [isOpen, setIsOpen] = useState(false); // 3. Stanje: da li je otvoren?
+  const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
 
+  // OVDJE JE DODAT LINK ZA PODCAST
   const navLinks = [
     { name: "O nama", href: "/onama" },
     { name: "Naš tim", href: "/tim" },
+    { name: "Podcast", href: "/podcast" }, // <-- Dodato ovdje
     { name: "Projekti", href: "/projekti" },
     { name: "Novosti", href: "/blog" },
     { name: "Kontakt", href: "/kontakt" },
   ];
 
-  // Funkcija za zatvaranje menija kad se klikne na link
   const closeMenu = () => setIsOpen(false);
 
   return (
@@ -47,7 +47,7 @@ const Navbar = () => {
             </div>
           </Link>
 
-          {/* --- DESKTOP MENI (Sakriven na mobitelu) --- */}
+          {/* --- DESKTOP MENI --- */}
           <div className="hidden md:flex items-center space-x-8">
             {navLinks.map((link) => (
               <Link
@@ -71,7 +71,7 @@ const Navbar = () => {
             </Link>
           </div>
 
-          {/* --- MOBILNO DUGME (Hamburger) --- */}
+          {/* --- MOBILNO DUGME --- */}
           <div className="md:hidden flex items-center">
             <button
               onClick={() => setIsOpen(!isOpen)}
@@ -84,7 +84,7 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* --- MOBILNI MENI (Prikazuje se samo kad je isOpen === true) --- */}
+      {/* --- MOBILNI MENI --- */}
       {isOpen && (
         <div className="md:hidden bg-[#0b1120] border-t border-gray-800">
           <div className="px-4 pt-4 pb-6 space-y-2 flex flex-col">
@@ -92,7 +92,7 @@ const Navbar = () => {
               <Link
                 key={link.name}
                 href={link.href}
-                onClick={closeMenu} // Zatvori meni kad klikneš
+                onClick={closeMenu}
                 className={`${
                   pathname === link.href
                     ? "text-blue-500 bg-gray-900/50"
@@ -103,7 +103,6 @@ const Navbar = () => {
               </Link>
             ))}
             
-            {/* Doniraj dugme za mobitel */}
             <div className="pt-4">
               <Link
                 href="/donacije"
