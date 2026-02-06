@@ -73,7 +73,7 @@ export default function Podcast() {
         <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 flex flex-col md:flex-row justify-between items-center gap-6 mb-16 border border-slate-100">
             <p className="text-slate-600 font-bold text-lg">Slušajte nas na:</p>
             <div className="flex flex-wrap justify-center gap-4">
-                <a href="https://youtube.com/@tvojakanal" target="_blank" className="flex items-center gap-3 px-6 py-3 bg-red-600 text-white rounded-full font-bold hover:bg-red-700 transition shadow-lg shadow-red-600/20 hover:shadow-xl hover:-translate-y-1">
+                <a href="https://youtube.com/@pesterpanoramaretrospektiv5074?si=YX5wR7u0Uh9FxkEF" target="_blank" className="flex items-center gap-3 px-6 py-3 bg-red-600 text-white rounded-full font-bold hover:bg-red-700 transition shadow-lg shadow-red-600/20 hover:shadow-xl hover:-translate-y-1">
                     <FaYoutube className="text-white text-xl" /> YouTube
                 </a>
             </div>
@@ -84,69 +84,79 @@ export default function Podcast() {
           <div className="text-center py-20 text-slate-500">Učitavanje epizoda...</div>
         )}
 
-        {/* 3. NOVA EPIZODA (FEATURED) */}
-        {!loading && featured && (
-            <div className="mb-24 animate-fadeIn">
-                <h2 className="text-3xl font-bold text-slate-900 mb-8 flex items-center">
-                    <span className="w-2 h-8 bg-blue-600 rounded-full mr-4"></span>
-                    Nova epizoda
-                </h2>
+     {/* 3. NOVA EPIZODA (FEATURED) */}
+{!loading && featured && (
+    <div className="mb-24 animate-fadeIn">
+        <h2 className="text-3xl font-bold text-slate-900 mb-8 flex items-center">
+            <span className="w-2 h-8 bg-blue-600 rounded-full mr-4"></span>
+            Nova epizoda
+        </h2>
+        
+        <div className="group relative bg-slate-900 rounded-[2.5rem] overflow-hidden shadow-2xl transition-all hover:shadow-blue-900/20">
+            <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/90 to-transparent z-10"></div>
+            
+            {/* IZMJENA OVDJE: Dodan overflow-hidden da slika ne curi */}
+            <div className="grid lg:grid-cols-2 gap-0 relative z-20">
                 
-                <div className="group relative bg-slate-900 rounded-[2.5rem] overflow-hidden shadow-2xl transition-all hover:shadow-blue-900/20">
-                    <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/90 to-transparent z-10"></div>
+                {/* LIJEVA STRANA: TEKST */}
+                <div className="p-8 md:p-12 flex flex-col justify-center order-2 lg:order-1">
+                    <span className="text-blue-400 font-bold tracking-widest text-sm uppercase mb-4">
+                        {formatDate(featured.created_at)}
+                    </span>
+                    <h3 className="text-3xl md:text-5xl font-bold text-white mb-6 leading-tight group-hover:text-blue-400 transition-colors">
+                        {featured.title}
+                    </h3>
+                    <p className="text-slate-300 text-lg mb-8 leading-relaxed line-clamp-3">
+                        {featured.content}
+                    </p>
                     
-                    <div className="grid lg:grid-cols-2 gap-8 relative z-20">
-                        <div className="p-8 md:p-12 flex flex-col justify-center">
-                            <span className="text-blue-400 font-bold tracking-widest text-sm uppercase mb-4">
-                                {formatDate(featured.created_at)}
-                            </span>
-                            <h3 className="text-3xl md:text-5xl font-bold text-white mb-6 leading-tight group-hover:text-blue-400 transition-colors">
-                                {featured.title}
-                            </h3>
-                            <p className="text-slate-300 text-lg mb-8 leading-relaxed line-clamp-3">
-                                {featured.content}
-                            </p>
-                            
-                            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 mb-8">
-                                {featured.guest_name && (
-                                    <div className="bg-slate-800/50 px-4 py-2 rounded-lg border border-slate-700">
-                                        <span className="text-slate-400 text-sm block">Gost:</span>
-                                        <span className="text-white font-semibold">{featured.guest_name}</span>
-                                    </div>
-                                )}
-                                {featured.video_duration && (
-                                     <div className="bg-slate-800/50 px-4 py-2 rounded-lg border border-slate-700">
-                                        <span className="text-slate-400 text-sm block">Trajanje:</span>
-                                        {/* FIX: Dodano 'min' */}
-                                        <span className="text-white font-semibold">{featured.video_duration} min</span>
-                                    </div>
-                                )}
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 mb-8">
+                        {featured.guest_name && (
+                            <div className="bg-slate-800/50 px-4 py-2 rounded-lg border border-slate-700">
+                                <span className="text-slate-400 text-sm block">Gost:</span>
+                                <span className="text-white font-semibold">{featured.guest_name}</span>
                             </div>
+                        )}
+                        {featured.video_duration && (
+                             <div className="bg-slate-800/50 px-4 py-2 rounded-lg border border-slate-700">
+                                <span className="text-slate-400 text-sm block">Trajanje:</span>
+                                <span className="text-white font-semibold">{featured.video_duration} min</span>
+                             </div>
+                        )}
+                    </div>
 
-                            <div className="flex items-center gap-4">
-                                <a href={featured.youtube_link} target="_blank" className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-600 text-white hover:bg-blue-500 transition-all hover:scale-110 shadow-lg shadow-blue-600/30">
-                                    <FaPlay className="ml-1 text-2xl" />
-                                </a>
-                                <span className="text-white font-bold text-lg">Gledaj odmah</span>
-                            </div>
-                        </div>
-
-                        <div className="relative h-64 lg:h-auto min-h-[400px] w-full">
-                            {featured.image_url ? (
-                                <Image 
-                                    src={featured.image_url} 
-                                    alt={featured.title}
-                                    fill
-                                    className="object-cover object-top lg:object-center"
-                                />
-                            ) : (
-                                <div className="w-full h-full bg-slate-800 flex items-center justify-center text-slate-600">Nema slike</div>
-                            )}
-                        </div>
+                    <div className="flex items-center gap-4">
+                        <a href={featured.youtube_link} target="_blank" className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-600 text-white hover:bg-blue-500 transition-all hover:scale-110 shadow-lg shadow-blue-600/30">
+                            <FaPlay className="ml-1 text-2xl" />
+                        </a>
+                        <span className="text-white font-bold text-lg">Gledaj odmah</span>
                     </div>
                 </div>
+
+                {/* DESNA STRANA: SLIKA */}
+                {/* IZMJENA OVDJE: Prilagođene visine za mobilni/tablet */}
+                <div className="relative w-full h-64 sm:h-80 lg:h-auto lg:min-h-full order-1 lg:order-2">
+                    {featured.image_url ? (
+                        <Image 
+                            src={featured.image_url} 
+                            alt={featured.title}
+                            fill
+                            className="object-cover object-top lg:object-center"
+                        />
+                    ) : (
+                        // Placeholder kad nema slike - ljepši dizajn
+                        <div className="w-full h-full bg-slate-800 flex flex-col items-center justify-center text-slate-500 border-b lg:border-b-0 lg:border-l border-slate-700">
+                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-12 h-12 mb-2 opacity-50">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                            </svg>
+                            <span className="text-sm font-medium">Nema slike</span>
+                        </div>
+                    )}
+                </div>
             </div>
-        )}
+        </div>
+    </div>
+)}
 
         {/* 4. PRETHODNE EPIZODE (GRID) */}
         {!loading && pastEpisodes.length > 0 && (
