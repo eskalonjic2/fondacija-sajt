@@ -131,7 +131,7 @@ export default async function Home() {
                 {/* PRVA SLIKA - hero8.jpeg (Spuštena dolje sa mt-12) */}
                   <div className="relative bg-slate-100 rounded-2xl h-64 lg:h-80 w-full overflow-hidden shadow-lg border border-slate-200 mt-12 transform transition-transform duration-500 hover:scale-[1.02]">
                       <Image 
-                        src="/hero8.jpeg" 
+                        src="/hero8.jpg" 
                         alt="Hako Duljević" 
                         fill 
                         // IZMJENA: Dodato object-[35%_center] da povuče sliku u lijevo
