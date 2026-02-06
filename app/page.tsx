@@ -136,7 +136,7 @@ export default async function Home() {
                         fill 
                         // IZMJENA: Dodato object-[35%_center] da povuče sliku u lijevo
                         // Ako treba još lijevo, stavi 25% ili 15%
-                        className="object-cover object-[35%_center]" 
+                        className="object-cover object-[53%_center]" 
                       />
                   </div>
 

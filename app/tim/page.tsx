@@ -46,13 +46,13 @@ export default function Tim() {
                             {/* OVDJE SMO UBACILI SLIKU */}
 <div className="relative w-full h-96">
     <Image 
-        src="/hero8.jpeg"      // Tvoja slika
+        src="/hero8.jpg"      // Tvoja slika
         alt="Hako Duljević" 
         fill                   // Rasteže sliku
         // IZMJENA: Smanjili smo procenat da bi se slika pomerila LIJEVO
         // 50% je sredina. 
         // Manji broj (25%, 35%) pomjera fokus u lijevo.
-        className="object-cover object-[35%_center] transition-transform duration-700 group-hover:scale-105"
+        className="object-cover object-[53%_center] transition-transform duration-700 group-hover:scale-105"
     />
     {/* Gradient */}
     <div className="absolute inset-0 bg-gradient-to-t from-gray-900/20 to-transparent z-10"></div>
