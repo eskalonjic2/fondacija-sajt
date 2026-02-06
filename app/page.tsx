@@ -120,26 +120,27 @@ export default async function Home() {
                 </Link>
               </div>
 
-              {/* DESNA STRANA: SLIKE (Hero 8 i Hero 6) */}
+            {/* DESNA STRANA: SLIKE (Hero 8 i Hero 6) */}
               <div className="relative">
                 {/* Dekorativni krug u pozadini */}
                 <div className="absolute -top-4 -right-4 w-72 h-72 bg-[#be1e2d]/10 rounded-full blur-3xl"></div>
                 
+                {/* Grid sa 2 slike - items-start ih poravnava na vrhu */}
                 <div className="grid grid-cols-2 gap-6 relative z-10 items-start">
                   
-                {/* PRVA SLIKA - hero8.jpeg (Spuštena dolje sa mt-12) */}
-                  <div className="relative bg-slate-100 rounded-2xl h-64 lg:h-80 w-full overflow-hidden shadow-lg border border-slate-200 mt-12 transform transition-transform duration-500 hover:scale-[1.02]">
+                  {/* PRVA SLIKA - hero8.jpg */}
+                  {/* IZMJENA: Uklonjeno 'mt-12' da se slika podigne i izravna sa drugom */}
+                  <div className="relative bg-slate-100 rounded-2xl h-64 lg:h-80 w-full overflow-hidden shadow-lg border border-slate-200 transform transition-transform duration-500 hover:scale-[1.02]">
                       <Image 
                         src="/hero8.jpg" 
                         alt="Hako Duljević" 
                         fill 
-                        // IZMJENA: Dodato object-[35%_center] da povuče sliku u lijevo
-                        // Ako treba još lijevo, stavi 25% ili 15%
+                        // Ostalo je tvoje podešavanje fokusa
                         className="object-cover object-[53%_center]" 
                       />
                   </div>
 
-                  {/* DRUGA SLIKA - hero6.jpeg (Standardna pozicija gore) */}
+                  {/* DRUGA SLIKA - hero6.jpeg */}
                   <div className="relative bg-slate-100 rounded-2xl h-64 lg:h-80 w-full overflow-hidden shadow-lg border border-slate-200 transform transition-transform duration-500 hover:scale-[1.02]">
                       <Image 
                         src="/hero6.jpeg" 
