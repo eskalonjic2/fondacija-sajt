@@ -1,41 +1,68 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { FaMicrophone, FaYoutube, FaNewspaper, FaProjectDiagram } from "react-icons/fa"; 
+import { FaMicrophone, FaYoutube, FaNewspaper, FaProjectDiagram, FaCrop, FaTimes } from "react-icons/fa";
+import Cropper from "react-easy-crop";
+import { Point, Area } from "react-easy-crop"; // Importujemo tipove za cropper
+
+// 1. DEFINIŠEMO KAKO IZGLEDA JEDAN POST (Interfejs)
+interface Post {
+  id: number;
+  title: string;
+  content: string;
+  type: string;
+  image_url: string | null;
+  gallery_urls: string[] | null;
+  created_at: string;
+  video_duration?: string | null;
+  guest_name?: string | null;
+  youtube_link?: string | null;
+  slug: string;
+}
 
 export default function Admin() {
-  const [posts, setPosts] = useState<any[]>([]);
+  // 2. OVDJE SMO DODALI <Post[]> DA TYPESCRIPT ZNA DA JE OVO NIZ POSTOVA
+  const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(false);
-  const [editingId, setEditingId] = useState(null);
+  const [editingId, setEditingId] = useState<number | null>(null);
   const router = useRouter();
 
   // Osnovni podaci
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [type, setType] = useState("news"); // Default je news, ali se mijenja na klik
+  const [type, setType] = useState("news");
   
   // PODCAST SPECIFIČNI PODACI
   const [videoDuration, setVideoDuration] = useState("");
   const [guestName, setGuestName] = useState("");
   const [youtubeLink, setYoutubeLink] = useState("");
 
-  // Slike State
-  const [coverImage, setCoverImage] = useState<File | null>(null);
-  const [coverPreview, setCoverPreview] = useState<string | null>(null);
+  // Slike State - DODALI SMO TIPOVE <File | null>
+  const [coverImage, setCoverImage] = useState<File | null>(null); 
+  const [coverPreview, setCoverPreview] = useState<string | null>(null); 
   const [galleryFiles, setGalleryFiles] = useState<File[]>([]); 
   const [existingGalleryUrls, setExistingGalleryUrls] = useState<string[]>([]); 
+
+  // --- CROPPER STATE ---
+  const [crop, setCrop] = useState<Point>({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
+  const [isCropping, setIsCropping] = useState(false);
+  const [tempImage, setTempImage] = useState<string | null>(null); 
 
   useEffect(() => {
     fetchPosts();
   }, []);
 
   async function fetchPosts() {
-    // Admin treba da vidi SVE postove (i novosti i podcaste), zato ovdje nema filtera
     const { data } = await supabase.from("posts").select("*").order("created_at", { ascending: false });
-    if (data) setPosts(data);
+    if (data) {
+        // TypeScript nekad ne vjeruje bazi, pa kažemo "vjeruj mi, ovo su Postovi"
+        setPosts(data as Post[]);
+    }
   }
 
   const handleLogout = async () => {
@@ -44,18 +71,95 @@ export default function Admin() {
     router.refresh();
   };
 
+  const createImage = (url: string): Promise<HTMLImageElement> =>
+    new Promise((resolve, reject) => {
+      const image = new window.Image();
+      image.addEventListener('load', () => resolve(image));
+      image.addEventListener('error', (error) => reject(error));
+      image.setAttribute('crossOrigin', 'anonymous'); 
+      image.src = url;
+    });
+
+  async function getCroppedImg(imageSrc: string, pixelCrop: Area): Promise<Blob> {
+    const image = await createImage(imageSrc);
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+
+    if (!ctx) {
+        throw new Error("No 2d context");
+    }
+
+    canvas.width = pixelCrop.width;
+    canvas.height = pixelCrop.height;
+
+    ctx.drawImage(
+      image,
+      pixelCrop.x,
+      pixelCrop.y,
+      pixelCrop.width,
+      pixelCrop.height,
+      0,
+      0,
+      pixelCrop.width,
+      pixelCrop.height
+    );
+
+    return new Promise((resolve, reject) => {
+      canvas.toBlob((blob) => {
+        if (!blob) {
+            reject(new Error('Canvas is empty'));
+            return;
+        }
+        resolve(blob);
+      }, 'image/jpeg', 0.95);
+    });
+  }
+
   // --- HANDLERS ZA SLIKE ---
-  const handleCoverChange = (e: any) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setCoverImage(file);
-      setCoverPreview(URL.createObjectURL(file));
+  
+  const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.addEventListener("load", () => {
+        setTempImage(reader.result as string);
+        setIsCropping(true);
+        setZoom(1);
+      });
+      reader.readAsDataURL(file);
     }
   };
 
-  const handleGalleryChange = (e: any) => {
+  const onCropComplete = useCallback((croppedArea: Area, croppedAreaPixels: Area) => {
+    setCroppedAreaPixels(croppedAreaPixels);
+  }, []);
+
+  const showCroppedImage = async () => {
+    try {
+      if (!tempImage || !croppedAreaPixels) return;
+
+      const croppedBlob = await getCroppedImg(tempImage, croppedAreaPixels);
+      
+      const myFile = new File([croppedBlob], "cropped-image.jpg", { type: "image/jpeg" });
+
+      setCoverImage(myFile);
+      setCoverPreview(URL.createObjectURL(croppedBlob));
+      setIsCropping(false);
+      setTempImage(null);
+    } catch (e) {
+      console.error(e);
+      alert("Greška pri isjecanju slike");
+    }
+  };
+
+  const cancelCrop = () => {
+    setIsCropping(false);
+    setTempImage(null);
+  }
+
+  const handleGalleryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      const newFiles = Array.from(e.target.files) as File[];
+      const newFiles = Array.from(e.target.files);
       setGalleryFiles((prev) => [...prev, ...newFiles]);
     }
   };
@@ -69,18 +173,16 @@ export default function Admin() {
   };
 
   // --- EDIT ---
-  function handleEdit(post: any) {
+  // Ovdje smo dodali tip (post: Post)
+  function handleEdit(post: Post) {
     setEditingId(post.id);
     setTitle(post.title);
     setContent(post.content);
-    // Ovdje osiguravamo da se tip ispravno učita iz baze
     setType(post.type || "news");
     
-    // Učitaj slike
     setCoverPreview(post.image_url);
     setExistingGalleryUrls(post.gallery_urls || []);
     
-    // Učitaj podcast podatke (ako postoje)
     setVideoDuration(post.video_duration || "");
     setGuestName(post.guest_name || "");
     setYoutubeLink(post.youtube_link || "");
@@ -95,20 +197,18 @@ export default function Admin() {
     setEditingId(null);
     setTitle("");
     setContent("");
-    setType("news"); // Vraća na default nakon objave
+    setType("news"); 
     setCoverImage(null);
     setCoverPreview(null);
     setGalleryFiles([]);
     setExistingGalleryUrls([]);
-    
-    // Reset podcast polja
     setVideoDuration("");
     setGuestName("");
     setYoutubeLink("");
   }
 
   // --- DELETE ---
-  async function handleDelete(id: any) {
+  async function handleDelete(id: number) {
     if (!confirm("Da li ste sigurni da želite obrisati ovaj post?")) return;
     const { error } = await supabase.from("posts").delete().eq("id", id);
     if (error) alert("Greška: " + error.message);
@@ -119,16 +219,15 @@ export default function Admin() {
   }
 
   // --- PUBLISH / UPDATE ---
-  const handlePublish = async (e: any) => {
+  const handlePublish = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
       let finalCoverUrl = coverPreview; 
-      let finalGalleryUrls = [...existingGalleryUrls]; 
-
-      // 1. Upload Naslovne slike
+      
       if (coverImage) {
+        // Sada TS zna da coverImage ima 'name' property jer smo rekli da je File
         const fileName = `cover-${Date.now()}-${coverImage.name}`;
         const { error } = await supabase.storage.from("images").upload(fileName, coverImage);
         if (error) throw error;
@@ -136,8 +235,8 @@ export default function Admin() {
         finalCoverUrl = publicData.publicUrl;
       }
 
-      // 2. Upload Galerije (Samo ako NIJE podcast)
-      // Podcast ne bi trebao imati galeriju, pa ovo preskačemo ako je type === podcast
+      let finalGalleryUrls = [...existingGalleryUrls]; 
+
       if (type !== 'podcast' && galleryFiles.length > 0) {
         for (const file of galleryFiles) {
           const fileName = `gallery-${Date.now()}-${file.name}`;
@@ -151,19 +250,14 @@ export default function Admin() {
 
       const slug = title.toLowerCase().replace(/ /g, "-").replace(/[^\w-]+/g, "");
 
-      // 3. Priprema podataka
-      // OVDJE JE KLJUČ: 'type' varijabla određuje gdje će se post prikazati
       const postData = {
         title,
         content,
-        type: type, // Ovo je najvažnije polje za razdvajanje novosti i podcasta
+        type: type, 
         slug,
         image_url: finalCoverUrl,
-        // Ako je podcast, forsiramo praznu galeriju da ne bude zabune
         gallery_urls: type === 'podcast' ? [] : finalGalleryUrls, 
         updated_at: new Date().toISOString(),
-        
-        // Podcast specifična polja (biće null ako je novost)
         video_duration: type === 'podcast' ? videoDuration : null,
         guest_name: type === 'podcast' ? guestName : null,
         youtube_link: type === 'podcast' ? youtubeLink : null,
@@ -190,13 +284,62 @@ export default function Admin() {
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
+      
+      {/* --- MODAL ZA ISJECANJE SLIKE --- */}
+      {isCropping && tempImage && (
+        <div className="fixed inset-0 z-50 flex flex-col bg-black bg-opacity-90">
+          <div className="relative flex-1 w-full bg-gray-900">
+             <Cropper
+              image={tempImage}
+              crop={crop}
+              zoom={zoom}
+              aspect={16 / 9}
+              onCropChange={setCrop}
+              onCropComplete={onCropComplete}
+              onZoomChange={setZoom}
+            />
+          </div>
+          
+          <div className="bg-white p-6 flex flex-col gap-4 items-center pb-10">
+            <div className="w-full max-w-md flex items-center gap-4">
+               <span className="text-gray-500 text-sm">Zoom:</span>
+               <input
+                type="range"
+                value={zoom}
+                min={1}
+                max={3}
+                step={0.1}
+                aria-labelledby="Zoom"
+                onChange={(e) => setZoom(Number(e.target.value))}
+                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+              />
+            </div>
+            
+            <div className="flex gap-4">
+                <button 
+                  onClick={cancelCrop}
+                  className="px-6 py-2 bg-gray-200 text-gray-800 rounded-lg font-bold hover:bg-gray-300"
+                >
+                  Otkaži
+                </button>
+                <button 
+                  onClick={showCroppedImage}
+                  className="px-6 py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 flex items-center gap-2"
+                >
+                  <FaCrop /> Isječi i Postavi
+                </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="max-w-5xl mx-auto">
         
         {/* HEADER */}
         <div className="flex justify-between items-center mb-8">
              <h1 className="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
              <button onClick={handleLogout} className="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-900 transition flex items-center gap-2">
-                 <span>Odjavi se</span>
+                <span>Odjavi se</span>
              </button>
         </div>
         
@@ -213,7 +356,7 @@ export default function Admin() {
 
           <form onSubmit={handlePublish} className="space-y-8">
             
-            {/* 1. TIP OBJAVE - OVDJE BIRATE GDJE IDE POST */}
+            {/* 1. TIP OBJAVE */}
             <div className="bg-slate-50 p-5 rounded-lg border border-slate-200">
                 <label className="block text-sm font-bold text-gray-700 mb-3">Izaberite tip objave:</label>
                 <div className="flex flex-wrap gap-6">
@@ -229,7 +372,6 @@ export default function Admin() {
                            <FaProjectDiagram /> Projekat
                         </span>
                     </label>
-                    {/* PODCAST RADIO */}
                     <label className="flex items-center cursor-pointer group p-3 bg-white rounded border hover:border-purple-400 transition">
                         <input type="radio" name="postType" value="podcast" checked={type === "podcast"} onChange={(e) => setType(e.target.value)} className="w-5 h-5 text-purple-600 focus:ring-purple-500" />
                         <span className="ml-2 text-gray-700 font-medium group-hover:text-purple-600 flex items-center gap-2">
@@ -239,7 +381,7 @@ export default function Admin() {
                 </div>
             </div>
 
-            {/* 2. OSNOVNI PODACI (Naslov i Slika) */}
+            {/* 2. OSNOVNI PODACI */}
             <div className="grid md:grid-cols-2 gap-8">
                 <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2">
@@ -248,25 +390,36 @@ export default function Admin() {
                     <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Unesite naslov..." required />
                 </div>
 
-                {/* Cover Slika */}
+                {/* Cover Slika - PROMIJENJENO */}
                 <div>
                       <label className="block text-sm font-bold text-gray-700 mb-2">
                         {type === 'podcast' ? "Thumbnail Epizode (Slika)" : "Naslovna Slika"}
                       </label>
+                      
+                      {/* FILE INPUT SADA POKREĆE CROPPER */}
                       <input type="file" onChange={handleCoverChange} accept="image/*" className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer" />
+                      
                       {coverPreview && (
                         <div className="mt-2 relative h-32 w-full rounded-lg overflow-hidden border border-gray-200">
                            <Image src={coverPreview} alt="Cover preview" fill className="object-cover" />
+                           {/* Dugme za brisanje slike */}
+                           <button 
+                             type="button" 
+                             onClick={() => { setCoverPreview(null); setCoverImage(null); }}
+                             className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1 shadow-md hover:bg-red-700"
+                           >
+                             <FaTimes size={12}/>
+                           </button>
                         </div>
                       )}
                 </div>
             </div>
 
-            {/* 3. PODCAST SPECIFIČNA POLJA (Prikazuju se samo ako je type === 'podcast') */}
+            {/* 3. PODCAST POLJA */}
             {type === 'podcast' && (
                 <div className="bg-purple-50 p-6 rounded-xl border border-purple-100 grid md:grid-cols-3 gap-6 animate-fadeIn">
                     <div className="md:col-span-1">
-                        <label className="block text-sm font-bold text-gray-700 mb-2">Trajanje (npr. 45 min)</label>
+                        <label className="block text-sm font-bold text-gray-700 mb-2">Trajanje</label>
                         <input type="text" value={videoDuration} onChange={(e) => setVideoDuration(e.target.value)} className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none" placeholder="45" />
                     </div>
                     <div className="md:col-span-1">
@@ -283,7 +436,7 @@ export default function Admin() {
                 </div>
             )}
 
-            {/* 4. GALERIJA (Samo za Novosti i Projekte - NEMA ZA PODCAST) */}
+            {/* 4. GALERIJA */}
             {type !== 'podcast' && (
                 <div className="bg-gray-50 p-4 rounded-lg border border-dashed border-gray-300">
                     <label className="block text-sm font-bold text-gray-700 mb-2">Galerija slika</label>
@@ -306,7 +459,7 @@ export default function Admin() {
                 </div>
             )}
 
-            {/* 5. OPIS / SADRŽAJ */}
+            {/* 5. OPIS */}
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-2">Opis / Tekst</label>
               <textarea value={content} onChange={(e) => setContent(e.target.value)} className="w-full p-4 border border-gray-300 rounded-lg h-40 focus:ring-2 focus:ring-blue-500 outline-none" placeholder={type === 'podcast' ? "Kratak opis o čemu se radi u epizodi..." : "Pišite ovdje..."} required />
@@ -328,11 +481,11 @@ export default function Admin() {
           </form>
         </div>
 
-        {/* LISTA SVIH POSTOVA */}
+        {/* LISTA POSTOVA */}
         <div className="bg-white rounded-xl shadow-md overflow-hidden">
           <div className="p-6 border-b bg-gray-50">
              <h2 className="text-xl font-bold text-gray-800">Svi unosi (Baza podataka)</h2>
-             <p className="text-sm text-gray-500 mt-1">Ovdje vidite sve unose. Na sajtu se prikazuju odvojeno.</p>
+             <p className="text-sm text-gray-500 mt-1">Ovdje vidite sve unose.</p>
           </div>
           <div className="divide-y divide-gray-100">
             {posts.map((post) => (
@@ -352,10 +505,7 @@ export default function Admin() {
                             ${post.type === 'project' ? 'bg-green-100 text-green-800' 
                             : post.type === 'podcast' ? 'bg-purple-100 text-purple-800' 
                             : 'bg-blue-100 text-blue-800'}`}>
-                            {post.type === 'podcast' && <FaMicrophone />}
-                            {post.type === 'project' && <FaProjectDiagram />}
-                            {post.type === 'news' && <FaNewspaper />}
-                            {post.type === 'project' ? 'Projekat' : post.type === 'podcast' ? 'Podcast' : 'Novost'}
+                            {post.type === 'podcast' ? 'Podcast' : post.type === 'project' ? 'Projekat' : 'Novost'}
                         </span>
                         <span className="text-gray-500">{new Date(post.created_at).toLocaleDateString("bs-BA")}</span>
                     </div>
@@ -372,7 +522,6 @@ export default function Admin() {
                 </div>
               </div>
             ))}
-            
             {posts.length === 0 && <div className="p-8 text-center text-gray-500">Još uvijek nema objava.</div>}
           </div>
         </div>
