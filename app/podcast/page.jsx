@@ -220,10 +220,18 @@ export default function Podcast() {
             </div>
         )}
 
-        {/* Ako nema podcasta uopšte */}
-        {!loading && !featured && (
-            <div className="text-center text-slate-500 py-20">Još uvijek nema objavljenih epizoda.</div>
-        )}
+      {/* Ako nema podcasta uopšte - USKORO */}
+{!loading && !featured && (
+    <div className="w-full rounded-[2.5rem] bg-blue-600 py-32 flex items-center justify-center shadow-2xl relative overflow-hidden mb-24">
+        {/* Dekorativni sjaj u pozadini (opcionalno) */}
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-blue-700"></div>
+        
+        {/* Tekst */}
+        <h2 className="relative z-10 text-white font-bold text-6xl md:text-9xl tracking-widest uppercase opacity-90 drop-shadow-md">
+            Uskoro
+        </h2>
+    </div>
+)}
 
       </div>
     </div>
