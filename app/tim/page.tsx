@@ -1,127 +1,157 @@
-// components/Tim.tsx
 import { FaFacebook, FaLinkedin } from "react-icons/fa";
+import Image from "next/image";
 
 export default function Tim() {
   return (
-    <div className="max-w-7xl mx-auto p-8">
-      {/* Prvi dio: O našoj kulturi i organizaciji */}
-      <section className="mb-20 text-center">
-        <h1 className="text-5xl font-extrabold text-gray-900 mb-6">Ljudi iza misije</h1>
+    <div className="bg-gray-50">
+      
+      {/* 1. SEKCIJA: TEKST (Ograničena širina, bijela/siva pozadina) */}
+      <div className="max-w-7xl mx-auto px-6 py-16 lg:py-20 text-center">
+        <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-6">
+            Ljudi iza misije
+        </h1>
         <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
           Naša snaga nije samo u donacijama, već u ljudima koji svakodnevno rade na terenu. 
           Spojili smo stručnjake iz različitih oblasti sa jednim ciljem – napraviti stvarnu promjenu. 
           Ovo je ekipa koja pretvara viziju u djela.
         </p>
+      </div>
+
+      {/* 2. SEKCIJA: TIM (Puna širina ekrana, tamna pozadina) */}
+      <section className="w-full bg-slate-900 py-24 relative overflow-hidden">
+        
+        {/* Dekorativni pozadinski krugovi */}
+        <div className="absolute top-0 left-0 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl translate-x-1/2 translate-y-1/2 pointer-events-none"></div>
+
+        <div className="container mx-auto px-6 relative z-10">
+            
+            {/* Naslov sekcije */}
+            <div className="text-center mb-20">
+                <h2 className="text-3xl md:text-5xl font-extrabold text-white inline-block relative">
+                    Naš Tim
+                    <span className="block w-24 h-1.5 bg-gradient-to-r from-blue-500 to-purple-500 mx-auto mt-4 rounded-full"></span>
+                </h2>
+            </div>
+
+            {/* --- STRUKTURA TIMA --- */}
+            <div className="flex flex-col gap-12 items-center">
+
+             {/* 1. RED: DIREKTOR (Sam u sredini) */}
+                <div className="w-full max-w-sm">
+                    <div className="group bg-white rounded-[2rem] p-5 border border-white/10 shadow-xl transition-all duration-300 hover:-translate-y-3 hover:shadow-2xl hover:shadow-blue-900/20 relative">
+                        {/* Okvir za sliku */}
+                        <div className="relative mb-6 rounded-2xl overflow-hidden shadow-md border-[4px] border-gray-50 mx-auto">
+                            
+                            {/* OVDJE SMO UBACILI SLIKU */}
+                            <div className="relative w-full h-96">
+                                <Image 
+                                    src="/hero8.jpeg"      // Tvoja slika
+                                    alt="Hako Duljević" 
+                                    fill                   // Rasteže sliku
+                                    className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
+                                />
+                                {/* Gradient */}
+                                <div className="absolute inset-0 bg-gradient-to-t from-gray-900/20 to-transparent z-10"></div>
+                            </div> 
+
+                        </div>
+                        {/* Podaci */}
+                        <div className="px-4 pb-4 text-center">
+                            <h3 className="font-extrabold text-2xl text-slate-900 mb-1">Hako Duljević</h3>
+                            <p className="text-blue-600 font-bold text-xs uppercase tracking-widest mb-5">Direktor fondacije</p>
+                            <div className="w-12 h-1 bg-gray-100 mx-auto mb-6 rounded-full group-hover:bg-blue-500 transition-colors duration-300"></div>
+                            <div className="flex justify-center space-x-5">
+                                <a href="https://www.facebook.com/share/1G9qWDbVdp/" target="_blank" className="text-gray-400 hover:text-blue-600 text-2xl transition duration-300 hover:scale-110"><FaFacebook /></a>
+                               
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* 2. RED: PROJEKT MENADŽER (Sam u sredini) */}
+                {/* IZMJENA: max-w-md -> max-w-sm za užu karticu */}
+                <div className="w-full max-w-sm">
+                    <div className="group bg-white rounded-[2rem] p-5 border border-white/10 shadow-xl transition-all duration-300 hover:-translate-y-3 hover:shadow-2xl hover:shadow-blue-900/20 relative">
+                        <div className="relative mb-6 rounded-2xl overflow-hidden shadow-md border-[4px] border-gray-50 mx-auto">
+                            {/* IZMJENA: h-80 -> h-96 za višu sliku */}
+                            <div className="relative w-full h-96">
+                                <Image 
+                                    src="/hero6.jpeg" // Provjeri da li je .jpg ili .jpeg u tvom folderu!
+                                    alt="Damir Mahmutović" 
+                                    fill 
+                                    className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-gray-900/20 to-transparent z-10"></div>
+                            </div>
+                        </div>
+                        <div className="px-4 pb-4 text-center">
+                            <h3 className="font-extrabold text-2xl text-slate-900 mb-1">Damir Mahmutović</h3>
+                            <p className="text-blue-600 font-bold text-xs uppercase tracking-widest mb-5">Projekt menadžer</p>
+                            <div className="w-12 h-1 bg-gray-100 mx-auto mb-6 rounded-full group-hover:bg-blue-500 transition-colors duration-300"></div>
+                            <div className="flex justify-center space-x-5">
+                                <a href="https://www.facebook.com/share/1htWy5UMEH/" target="_blank" className="text-gray-400 hover:text-blue-600 text-2xl transition duration-300 hover:scale-110"><FaFacebook /></a>
+                                <a href="https://www.linkedin.com/in/damir-mahmutovi%C4%87-23494628a" target="_blank" className="text-gray-400 hover:text-blue-700 text-2xl transition duration-300 hover:scale-110"><FaLinkedin /></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* 3. RED: VOLONTERI (Dva, jedan pored drugog) */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-3xl"> {/* Smanjen max-w za grid */}
+                    
+                    {/* Volonter 1 */}
+              <div className="group bg-white rounded-[2rem] p-5 border border-white/10 shadow-xl transition-all duration-300 hover:-translate-y-3 hover:shadow-2xl hover:shadow-blue-900/20 relative">
+                        <div className="relative mb-6 rounded-2xl overflow-hidden shadow-md border-[4px] border-gray-50 mx-auto">
+                            
+                            {/* OKVIR I SLIKA */}
+                            <div className="w-full h-96 bg-gray-200 relative">
+                                <Image 
+                                    src="/hero7.jpeg"      // Tvoja slika
+                                    alt="Emir Skalonjić" 
+                                    fill 
+                                    className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
+                                />
+                                {/* Gradient preko slike */}
+                                <div className="absolute inset-0 bg-gradient-to-t from-gray-900/20 to-transparent z-10"></div>
+                            </div>
+
+                        </div>
+                        <div className="px-4 pb-4 text-center">
+                            <h3 className="font-extrabold text-2xl text-slate-900 mb-1">Emir Skalonjić</h3>
+                            <p className="text-blue-600 font-bold text-xs uppercase tracking-widest mb-5">Volonter</p>
+                            <div className="w-12 h-1 bg-gray-100 mx-auto mb-6 rounded-full group-hover:bg-blue-500 transition-colors duration-300"></div>
+                            <div className="flex justify-center space-x-5">
+                                <a href="https://www.facebook.com/share/1DpXeKebUN/" className="text-gray-400 hover:text-blue-600 text-2xl transition duration-300 hover:scale-110"><FaFacebook /></a>
+                                <a href="https://www.linkedin.com/in/emir-skalonjic-a50093295?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" className="text-gray-400 hover:text-blue-700 text-2xl transition duration-300 hover:scale-110"><FaLinkedin /></a>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Volonter 2 */}
+                    <div className="group bg-white rounded-[2rem] p-5 border border-white/10 shadow-xl transition-all duration-300 hover:-translate-y-3 hover:shadow-2xl hover:shadow-blue-900/20 relative">
+                        <div className="relative mb-6 rounded-2xl overflow-hidden shadow-md border-[4px] border-gray-50 mx-auto">
+                            {/* IZMJENA: h-80 -> h-96 za višu sliku */}
+                            <div className="w-full h-96 bg-gray-200 object-cover bg-center transition-transform duration-700 group-hover:scale-105 relative">
+                                <div className="absolute inset-0 bg-gradient-to-t from-gray-900/20 to-transparent"></div>
+                            </div>
+                        </div>
+                        <div className="px-4 pb-4 text-center">
+                            <h3 className="font-extrabold text-2xl text-slate-900 mb-1">Volonter 2</h3>
+                            <p className="text-blue-600 font-bold text-xs uppercase tracking-widest mb-5">Pozicija / Uloga</p>
+                            <div className="w-12 h-1 bg-gray-100 mx-auto mb-6 rounded-full group-hover:bg-blue-500 transition-colors duration-300"></div>
+                            <div className="flex justify-center space-x-5">
+                                <a href="#" className="text-gray-400 hover:text-blue-600 text-2xl"><FaFacebook /></a>
+                                <a href="#" className="text-gray-400 hover:text-blue-700 text-2xl"><FaLinkedin /></a>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
       </section>
-
-    <section className="py-16 bg-gray-50/50"> {/* Dodao sam blagu pozadinu sekciji za bolji kontrast */}
-  <div className="container mx-auto px-4">
-    {/* Naslov sekcije */}
-    <div className="text-center mb-16">
-      <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 inline-block relative after:content-[''] after:block after:w-1/2 after:h-1 after:bg-blue-500 after:mx-auto after:mt-4 after:rounded-full">
-        Naš Tim
-      </h2>
-    </div>
-
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12 max-w-6xl mx-auto">
-
-      {/* KARTICA 1 */}
-      <div className="group bg-white rounded-[2rem] p-5 border border-gray-200/60 text-center transition-all duration-300 hover:-translate-y-3 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] relative overflow-hidden">
-        
-        {/* OKVIR ZA SLIKU - Kockasti/Portret */}
-        <div className="relative mb-6 rounded-xl overflow-hidden shadow-sm border-[3px] border-white ring-1 ring-gray-100 mx-auto">
-          {/* Placeholder za sliku - zamijenjen sa većim, portretnim div-om */}
-          <div className="w-full h-80 bg-gray-200 object-cover bg-center transition-transform duration-500 group-hover:scale-[1.03]">
-              {/* Opcionalno: Blagi gradient preko placeholdera da izgleda 'punije' */}
-              <div className="absolute inset-0 bg-gradient-to-t from-gray-900/10 to-transparent"></div>
-          </div> 
-        </div>
-
-        <div className="px-4 pb-4">
-          <h3 className="font-extrabold text-2xl text-gray-900 mb-2 leading-tight">Hako Duljević</h3>
-          {/* Uloga - moderniji stil (uppercase, manji font, jača boja) */}
-          <p className="text-blue-600 font-bold text-xs uppercase tracking-wider mb-4">Direktor fondacije</p>
-          
-          {/* Dekorativna linija */}
-          <div className="w-10 h-0.5 bg-blue-200 mx-auto mb-6 rounded-full group-hover:bg-blue-500 transition-colors"></div>
-          
-          {/* Ikonice za društvene mreže (LINKOVI NISU DIRANI) */}
-          <div className="flex justify-center space-x-5">
-            <a 
-              href="https://www.facebook.com/share/1G9qWDbVdp/" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-gray-400 hover:text-blue-600 text-2xl transition duration-300 hover:scale-110"
-            >
-              <FaFacebook />
-            </a>
-            <a 
-              href="https://linkedin.com/in/profil-ovog-clana" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-gray-400 hover:text-blue-700 text-2xl transition duration-300 hover:scale-110"
-            >
-              <FaLinkedin />
-            </a>
-          </div>
-        </div>
-      </div>
-
-      {/* KARTICA 2 */}
-      <div className="group bg-white rounded-[2rem] p-5 border border-gray-200/60 text-center transition-all duration-300 hover:-translate-y-3 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] relative overflow-hidden">
-        
-        <div className="relative mb-6 rounded-xl overflow-hidden shadow-sm border-[3px] border-white ring-1 ring-gray-100 mx-auto">
-          <div className="w-full h-80 bg-gray-200 object-cover bg-center transition-transform duration-500 group-hover:scale-[1.03]">
-               <div className="absolute inset-0 bg-gradient-to-t from-gray-900/10 to-transparent"></div>
-          </div>
-        </div>
-
-        <div className="px-4 pb-4">
-          <h3 className="font-extrabold text-2xl text-gray-900 mb-2 leading-tight">Damir Mahmutović</h3>
-          <p className="text-blue-600 font-bold text-xs uppercase tracking-wider mb-4">Projekt menadžer</p>
-          
-          <div className="w-10 h-0.5 bg-blue-200 mx-auto mb-6 rounded-full group-hover:bg-blue-500 transition-colors"></div>
-          
-          <div className="flex justify-center space-x-5">
-            <a href="https://www.facebook.com/share/1htWy5UMEH/" target="_blank" className="text-gray-400 hover:text-blue-600 text-2xl transition duration-300 hover:scale-110">
-              <FaFacebook />
-            </a>
-            <a href="https://www.linkedin.com/in/damir-mahmutovi%C4%87-23494628a?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" target="_blank" className="text-gray-400 hover:text-blue-700 text-2xl transition duration-300 hover:scale-110">
-              <FaLinkedin />
-            </a>
-          </div>
-        </div>
-      </div>
-
-      {/* KARTICA 3 */}
-      <div className="group bg-white rounded-[2rem] p-5 border border-gray-200/60 text-center transition-all duration-300 hover:-translate-y-3 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] relative overflow-hidden">
-        
-        <div className="relative mb-6 rounded-xl overflow-hidden shadow-sm border-[3px] border-white ring-1 ring-gray-100 mx-auto">
-          <div className="w-full h-80 bg-gray-200 object-cover bg-center transition-transform duration-500 group-hover:scale-[1.03]">
-               <div className="absolute inset-0 bg-gradient-to-t from-gray-900/10 to-transparent"></div>
-          </div>
-        </div>
-
-        <div className="px-4 pb-4">
-          <h3 className="font-extrabold text-2xl text-gray-900 mb-2 leading-tight">Ime Prezime</h3>
-          <p className="text-blue-600 font-bold text-xs uppercase tracking-wider mb-4">Volonter</p>
-          
-          <div className="w-10 h-0.5 bg-blue-200 mx-auto mb-6 rounded-full group-hover:bg-blue-500 transition-colors"></div>
-          
-          <div className="flex justify-center space-x-5">
-            <a href="#" target="_blank" className="text-gray-400 hover:text-blue-600 text-2xl transition duration-300 hover:scale-110">
-              <FaFacebook />
-            </a>
-            <a href="#" target="_blank" className="text-gray-400 hover:text-blue-700 text-2xl transition duration-300 hover:scale-110">
-              <FaLinkedin />
-            </a>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</section>
     </div>
   );
 }

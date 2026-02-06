@@ -65,10 +65,10 @@ export default async function Home() {
             {/* IZMJENA: mt-48 gura sadržaj skroz dole na telefonu. md:mt-0 ga vraća u sredinu na PC-u. */}
             <div className="max-w-2xl mt-48 md:mt-0"> 
               
-              <h1 className="flex flex-col text-4xl md:text-8xl font-black tracking-tight leading-tight md:leading-none mb-4 md:mb-6 drop-shadow-lg">
-                <span className="text-white">FONDACIJA</span>
-                <span className="text-blue-500">DULJEVIĆ</span>
-              </h1>
+             <h1 className="flex flex-col text-3xl md:text-6xl font-black tracking-tight leading-tight md:leading-none mb-4 md:mb-6 drop-shadow-lg">
+    <span className="text-white">FONDACIJA</span>
+    <span className="text-blue-500">DULJEVIĆ</span>
+</h1>
               
               <p className="text-sm md:text-xl text-gray-200 mb-6 md:mb-8 leading-relaxed font-light border-l-4 border-blue-500 pl-4 md:pl-6 bg-black/20 backdrop-blur-sm py-2 pr-4 rounded-r-lg w-fit max-w-lg">
                 Pružamo ruku onima kojima je najpotrebnija.<br />
