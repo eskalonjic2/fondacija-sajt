@@ -15,8 +15,8 @@ const Navbar = () => {
     { name: "O nama", href: "/onama" },
     { name: "Naš tim", href: "/tim" },
     { name: "Podcast", href: "/podcast" }, // <-- Dodato ovdje
-    { name: "Projekti", href: "/projekti" },
     { name: "Novosti", href: "/blog" },
+    { name: "Projekti", href: "/projekti" },
     { name: "Kontakt", href: "/kontakt" },
   ];
 
