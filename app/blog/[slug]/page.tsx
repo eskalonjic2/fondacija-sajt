@@ -166,9 +166,6 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
                 src={post.image_url} 
                 alt={post.title} 
                 fill 
-                // OVO RJEŠAVA PROBLEM NA MOBITELU:
-                // na mobilnom je 'object-contain' (cijela slika stane), 
-                // na desktopu (md) je 'object-cover' (popunjava prostor)
                 className="object-contain md:object-cover"
                 priority
             />
@@ -199,7 +196,7 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
       {/* GLAVNI SADRŽAJ */}
       <div className="container mx-auto px-6 mt-8 md:mt-12 max-w-4xl">
          
-         {/* Mobilni Naslov i Info (jer smo ga sakrili sa slike gore da ne smeta slici) */}
+         {/* Mobilni Naslov i Info */}
          <div className="block md:hidden mb-8">
             <Link href="/blog" className="text-blue-600 hover:underline mb-4 inline-flex items-center font-medium text-sm">
                <FaArrowLeft className="mr-2" /> Nazad
@@ -235,10 +232,26 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
              </div>
          </div>
          
-         {/* Tekst */}
-         <div className="prose prose-lg max-w-none text-gray-700 leading-relaxed whitespace-pre-wrap mb-12 prose-a:text-blue-600 hover:prose-a:text-blue-800">
-            {post.content}
-         </div>
+         {/* --- TEKST (SADRŽAJ) SA NAPREDNIM STILOVIMA I FIXOM ZA RAZMAKE --- */}
+         <div 
+           className="prose prose-lg max-w-none w-full text-gray-700 mb-12 
+           
+           prose-headings:font-bold prose-headings:text-gray-900 
+           prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl
+           
+           /* FIX ZA RAZMAKE: */
+           prose-p:my-0 prose-p:leading-relaxed [&>p]:min-h-[1.5rem]
+
+           prose-ul:list-disc prose-ul:ml-6 prose-ul:mb-4
+           prose-ol:list-decimal prose-ol:ml-6 prose-ol:mb-4
+           prose-li:pl-1 prose-li:marker:text-blue-600
+
+           prose-a:text-blue-600 hover:prose-a:text-blue-800 
+           break-words overflow-hidden"
+           
+           dangerouslySetInnerHTML={{ __html: post.content }}
+         />
+         {/* ----------------------------------------------- */}
 
          {/* PODCAST VIDEO SEKCIJA */}
          {post.type === 'podcast' && post.youtube_link && (

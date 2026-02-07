@@ -10,11 +10,10 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
 
-  // OVDJE JE DODAT LINK ZA PODCAST
   const navLinks = [
     { name: "O nama", href: "/onama" },
     { name: "Naš tim", href: "/tim" },
-    { name: "Podcast", href: "/podcast" }, // <-- Dodato ovdje
+    { name: "Podcast", href: "/podcast" },
     { name: "Novosti", href: "/blog" },
     { name: "Projekti", href: "/projekti" },
     { name: "Kontakt", href: "/kontakt" },
@@ -28,7 +27,7 @@ const Navbar = () => {
         <div className="flex justify-between items-center h-20">
           
           {/* --- LOGO --- */}
-          <Link href="/" className="flex items-center gap-3 group" onClick={closeMenu}>
+          <Link href="/" className="flex items-center gap-3 group z-50" onClick={closeMenu}>
             <div className="relative w-12 h-12">
                <Image 
                  src="/logo.png" 
@@ -47,8 +46,9 @@ const Navbar = () => {
             </div>
           </Link>
 
-          {/* --- DESKTOP MENI --- */}
-          <div className="hidden md:flex items-center space-x-8">
+          {/* --- DESKTOP MENI (Samo za velike ekrane - LG i veće) --- */}
+          {/* Promijenjeno sa 'hidden md:flex' na 'hidden lg:flex' */}
+          <div className="hidden lg:flex items-center space-x-6 xl:space-x-8">
             {navLinks.map((link) => (
               <Link
                 key={link.name}
@@ -57,7 +57,7 @@ const Navbar = () => {
                   pathname === link.href
                     ? "text-blue-500 font-medium"
                     : "text-gray-300 hover:text-white"
-                } transition-colors duration-200 text-sm uppercase tracking-wide`}
+                } transition-colors duration-200 text-sm uppercase tracking-wide whitespace-nowrap`}
               >
                 {link.name}
               </Link>
@@ -65,17 +65,19 @@ const Navbar = () => {
 
             <Link
               href="/donacije"
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-full font-bold transition duration-300 shadow-lg shadow-blue-900/20"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-full font-bold transition duration-300 shadow-lg shadow-blue-900/20 whitespace-nowrap"
             >
               Doniraj
             </Link>
           </div>
 
-          {/* --- MOBILNO DUGME --- */}
-          <div className="md:hidden flex items-center">
+          {/* --- DUGME ZA MOBILNI I TABLET MENI --- */}
+          {/* Promijenjeno sa 'md:hidden' na 'lg:hidden' da se vidi i na tabletima */}
+          <div className="lg:hidden flex items-center z-50">
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="text-gray-300 hover:text-white focus:outline-none text-2xl"
+              className="text-gray-300 hover:text-white focus:outline-none text-2xl p-2"
+              aria-label="Toggle menu"
             >
               {isOpen ? <FaTimes /> : <FaBars />}
             </button>
@@ -84,10 +86,16 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* --- MOBILNI MENI --- */}
-      {isOpen && (
-        <div className="md:hidden bg-[#0b1120] border-t border-gray-800">
-          <div className="px-4 pt-4 pb-6 space-y-2 flex flex-col">
+      {/* --- MOBILNI I TABLET MENI (DROPDOWN) --- */}
+      {/* Prikazuje se sve dok ekran nije širi od LG (1024px) */}
+      <div 
+        className={`fixed inset-0 bg-[#0b1120]/95 backdrop-blur-sm transform transition-transform duration-300 ease-in-out lg:hidden ${
+          isOpen ? "translate-x-0" : "translate-x-full"
+        }`}
+        style={{ top: "80px" }} // Visina navbara da ne prekrije logo
+      >
+        <div className="flex flex-col h-full overflow-y-auto pb-20">
+            <div className="px-4 py-6 space-y-4">
             {navLinks.map((link) => (
               <Link
                 key={link.name}
@@ -95,26 +103,26 @@ const Navbar = () => {
                 onClick={closeMenu}
                 className={`${
                   pathname === link.href
-                    ? "text-blue-500 bg-gray-900/50"
-                    : "text-gray-300 hover:bg-gray-800 hover:text-white"
-                } block px-3 py-3 rounded-md text-base font-medium uppercase tracking-wide transition`}
+                    ? "text-blue-500 bg-gray-900/50 border-l-4 border-blue-500 pl-3"
+                    : "text-gray-300 hover:bg-gray-800 hover:text-white pl-4"
+                } block py-4 text-lg font-medium uppercase tracking-wide transition-all rounded-r-md`}
               >
                 {link.name}
               </Link>
             ))}
             
-            <div className="pt-4">
+            <div className="pt-6 px-4">
               <Link
                 href="/donacije"
                 onClick={closeMenu}
-                className="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-bold transition duration-300 shadow-lg"
+                className="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white px-6 py-4 rounded-xl font-bold text-lg transition duration-300 shadow-lg"
               >
                 Doniraj
               </Link>
             </div>
           </div>
         </div>
-      )}
+      </div>
     </nav>
   );
 };

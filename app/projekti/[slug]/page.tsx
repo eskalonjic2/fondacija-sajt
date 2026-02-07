@@ -26,6 +26,7 @@ interface Post {
 
 export default function BlogPost({ params }: { params: Promise<{ slug: string }> }) {
   
+  // Ovo je ispravno za Next.js 15
   const { slug } = use(params);
 
   const [post, setPost] = useState<Post | null>(null);
@@ -40,6 +41,7 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
 
   useEffect(() => {
     const fetchPost = async () => {
+      // Provjerava da li je slug zapravo ID (broj) ili tekst (slug)
       const isId = !isNaN(Number(slug));
 
       let query = supabase.from("posts").select("*");
@@ -156,12 +158,11 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
       {/* HEADER SLIKA */}
       {post.image_url ? (
         <div className="container mx-auto px-0 md:px-4 mt-0 md:mt-6">
-            <div className="relative w-full h-[500px] md:h-[650px] md:rounded-3xl overflow-hidden shadow-none md:shadow-lg bg-black">
+            <div className="relative w-full h-[300px] md:h-[650px] md:rounded-3xl overflow-hidden shadow-none md:shadow-lg bg-black">
             <Image 
                 src={post.image_url} 
                 alt={post.title} 
                 fill 
-                // Mobilni: contain (cijela slika), Desktop: cover (dizajn)
                 className="object-contain md:object-cover"
                 priority
             />
@@ -175,7 +176,6 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
                 </Link>
 
                 <div className="flex flex-wrap items-center gap-4 mb-4">
-                    {/* ZELENI OKVIR */}
                     <span className="bg-green-600 text-white px-3 py-1 rounded text-xs font-bold uppercase tracking-wider shadow-sm">
                         Projekat
                     </span>
@@ -189,12 +189,11 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
             </div>
         </div>
       ) : (
-        // Fallback ako nema slike
         <div className="container mx-auto px-6 max-w-4xl pt-16 pb-6">
              <Link href="/projekti" className="text-blue-600 hover:underline mb-6 inline-flex items-center font-medium">
                 <FaArrowLeft className="mr-2" /> Nazad
              </Link>
-             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">{post.title}</h1>
+             <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4">{post.title}</h1>
              <div className="flex items-center gap-4 text-gray-500">
                 <span className="flex items-center gap-2">
                     <FaCalendar /> {new Date(post.created_at).toLocaleDateString("bs-BA")}
@@ -205,15 +204,14 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
       )}
 
       {/* GLAVNI SADRŽAJ */}
-      <div className="container mx-auto px-6 mt-8 md:mt-12 max-w-4xl">
+      <div className="container mx-auto px-4 md:px-6 mt-8 md:mt-12 max-w-4xl">
          
-         {/* Mobilni Naslov i Info (vidljivo samo na mobitelu) */}
+         {/* Mobilni Naslov i Info */}
          <div className="block md:hidden mb-8">
             <Link href="/projekti" className="text-blue-600 hover:underline mb-4 inline-flex items-center font-medium text-sm">
                <FaArrowLeft className="mr-2" /> Nazad
             </Link>
             <div className="flex flex-wrap gap-2 mb-3">
-                 {/* ZELENI OKVIR MOBILNI */}
                  <span className="bg-green-100 text-green-700 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider">
                         Projekat
                  </span>
@@ -221,10 +219,10 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
                         <FaCalendar /> {new Date(post.created_at).toLocaleDateString("bs-BA")}
                  </span>
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 leading-tight">{post.title}</h1>
+            <h1 className="text-2xl font-bold text-gray-900 leading-tight">{post.title}</h1>
          </div>
 
-         {/* DUGMIĆI ZA DIJELJENJE (SOCIAL SHARE) */}
+         {/* DUGMIĆI ZA DIJELJENJE */}
          <div className="flex items-center gap-4 mb-8 border-b border-gray-100 pb-8">
              <span className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Podijeli:</span>
              <div className="flex gap-3">
@@ -243,10 +241,30 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
              </div>
          </div>
          
-         {/* Tekst */}
-         <div className="prose prose-lg max-w-none text-gray-700 leading-relaxed whitespace-pre-wrap mb-12 prose-a:text-blue-600 hover:prose-a:text-blue-800">
-            {post.content}
-         </div>
+       
+
+         {/* --- TEKST (SADRŽAJ) SA ISPRAVLJENIM RAZMACIMA --- */}
+         <div 
+           className="prose prose-base md:prose-lg max-w-none w-full text-gray-700 mb-12 
+           
+           prose-headings:font-bold prose-headings:text-gray-900 
+           prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl
+           
+           /* OVO JE KLJUČNA PROMJENA: */
+           prose-p:my-0 prose-p:leading-relaxed [&>p]:min-h-[1.5rem]
+           /* my-0 = tekst ide odmah ispod; min-h = prazan red (dupli enter) ostaje vidljiv */
+
+           prose-ul:list-disc prose-ul:ml-6 prose-ul:mb-4
+           prose-ol:list-decimal prose-ol:ml-6 prose-ol:mb-4
+           prose-li:pl-1 prose-li:marker:text-blue-600
+
+           prose-a:text-blue-600 hover:prose-a:text-blue-800 
+           break-words overflow-hidden"
+           
+           dangerouslySetInnerHTML={{ __html: post.content }}
+         />
+         {/* --------------------------- */}
+
 
          {/* GALERIJA SEKCIJA */}
          {post.gallery_urls && post.gallery_urls.length > 0 && (
@@ -281,7 +299,6 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
         <div 
             className="fixed inset-0 z-[9999] bg-black/95 flex items-center justify-center backdrop-blur-md animate-in fade-in duration-200"
             onClick={closeLightbox} 
-            // Swipe handlers
             onTouchStart={onTouchStart}
             onTouchMove={onTouchMove}
             onTouchEnd={onTouchEnd}
@@ -295,7 +312,6 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
             </svg>
           </button>
 
-          {/* LIJEVA STRELICA - VIDLJIVA I NA MOBITELU */}
           <button 
             onClick={prevImage}
             className="absolute left-2 md:left-4 text-white/70 hover:text-white p-2 md:p-3 z-50 bg-white/10 md:bg-transparent rounded-full transition"
@@ -323,7 +339,6 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
             </div>
           </div>
 
-          {/* DESNA STRELICA - VIDLJIVA I NA MOBITELU */}
           <button 
             onClick={nextImage}
             className="absolute right-2 md:right-4 text-white/70 hover:text-white p-2 md:p-3 z-50 bg-white/10 md:bg-transparent rounded-full transition"

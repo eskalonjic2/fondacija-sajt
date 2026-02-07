@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
 import RevealSection from "../components/RevealSection"; 
-import { FaMicrophone, FaNewspaper } from "react-icons/fa"; // Dodali smo ikone za ljepši izgled
+import { FaMicrophone, FaNewspaper } from "react-icons/fa"; 
 
 interface Post {
   id: number;
@@ -14,6 +14,19 @@ interface Post {
   image_url?: string | null;
   slug?: string | null;
   type?: string; // 'news', 'podcast', 'project'
+}
+
+// ---------------------------------------------------------
+// POMOĆNA FUNKCIJA: Čisti HTML tagove za ljepši prikaz uvoda
+// ---------------------------------------------------------
+function stripHtml(html: string) {
+  if (!html) return "";
+  // 1. Ukloni sve HTML tagove
+  let text = html.replace(/<[^>]*>?/gm, ' ');
+  // 2. Zamijeni &nbsp; sa običnim razmakom
+  text = text.replace(/&nbsp;/g, ' ');
+  // 3. Sredi višak razmaka
+  return text.replace(/\s+/g, ' ').trim();
 }
 
 export default function Blog() {
@@ -73,6 +86,9 @@ export default function Blog() {
                 const badgeColor = isPodcast ? 'bg-purple-100 text-purple-700' : 'bg-blue-50 text-blue-700';
                 const badgeIcon = isPodcast ? <FaMicrophone className="mr-1 text-xs" /> : <FaNewspaper className="mr-1 text-xs" />;
                 const label = isPodcast ? 'PODCAST' : 'NOVOST';
+                
+                // PRIPREMA ČISTOG TEKSTA
+                const cleanContent = stripHtml(post.content || "");
 
                 return (
                     <div key={post.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 flex flex-col border border-gray-100 h-full group">
@@ -113,13 +129,14 @@ export default function Blog() {
                             </h3>
                         </Link>
                         
+                        {/* OVDJE JE IZMJENA: Prikazujemo očišćen tekst */}
                         <p className="text-gray-600 mb-4 line-clamp-3 flex-grow text-sm leading-relaxed">
-                            {post.content}
+                            {cleanContent}
                         </p>
 
                         {/* Link Dugme */}
                         <Link 
-                            href={`/blog/${ post.id}`} 
+                            href={`/blog/${post.slug || post.id}`} 
                             className="text-blue-600 hover:text-blue-800 font-bold inline-flex items-center mt-auto w-max py-2"
                         >
                             Pročitaj više 

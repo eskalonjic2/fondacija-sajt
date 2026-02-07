@@ -6,9 +6,27 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { FaMicrophone, FaYoutube, FaNewspaper, FaProjectDiagram, FaCrop, FaTimes } from "react-icons/fa";
 import Cropper from "react-easy-crop";
-import { Point, Area } from "react-easy-crop"; // Importujemo tipove za cropper
+import { Point, Area } from "react-easy-crop";
 
-// 1. DEFINIŠEMO KAKO IZGLEDA JEDAN POST (Interfejs)
+// --- 1. IZMJENA: KORISTIMO NOVU BIBLIOTEKU ZA EDITOR ---
+import 'react-quill-new/dist/quill.snow.css'; // Promijenjen import za CSS
+import dynamic from 'next/dynamic';
+
+// Uvozimo 'react-quill-new' umjesto starog 'react-quill'
+const ReactQuill = dynamic(() => import('react-quill-new'), { ssr: false });
+
+// Definišemo alate koji će biti dostupni u editoru
+const modules = {
+  toolbar: [
+    [{ 'header': [1, 2, 3, false] }], 
+    ['bold', 'italic', 'underline', 'strike'], 
+    [{ 'list': 'ordered'}, { 'list': 'bullet' }], 
+    ['link'], 
+    ['clean'] 
+  ],
+};
+// ------------------------------------------------
+
 interface Post {
   id: number;
   title: string;
@@ -24,7 +42,6 @@ interface Post {
 }
 
 export default function Admin() {
-  // 2. OVDJE SMO DODALI <Post[]> DA TYPESCRIPT ZNA DA JE OVO NIZ POSTOVA
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -32,7 +49,7 @@ export default function Admin() {
 
   // Osnovni podaci
   const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
+  const [content, setContent] = useState(""); // React Quill koristi ovo
   const [type, setType] = useState("news");
   
   // PODCAST SPECIFIČNI PODACI
@@ -40,7 +57,7 @@ export default function Admin() {
   const [guestName, setGuestName] = useState("");
   const [youtubeLink, setYoutubeLink] = useState("");
 
-  // Slike State - DODALI SMO TIPOVE <File | null>
+  // Slike State
   const [coverImage, setCoverImage] = useState<File | null>(null); 
   const [coverPreview, setCoverPreview] = useState<string | null>(null); 
   const [galleryFiles, setGalleryFiles] = useState<File[]>([]); 
@@ -60,7 +77,6 @@ export default function Admin() {
   async function fetchPosts() {
     const { data } = await supabase.from("posts").select("*").order("created_at", { ascending: false });
     if (data) {
-        // TypeScript nekad ne vjeruje bazi, pa kažemo "vjeruj mi, ovo su Postovi"
         setPosts(data as Post[]);
     }
   }
@@ -173,11 +189,10 @@ export default function Admin() {
   };
 
   // --- EDIT ---
-  // Ovdje smo dodali tip (post: Post)
   function handleEdit(post: Post) {
     setEditingId(post.id);
     setTitle(post.title);
-    setContent(post.content);
+    setContent(post.content); // Quill automatski čita HTML
     setType(post.type || "news");
     
     setCoverPreview(post.image_url);
@@ -221,13 +236,19 @@ export default function Admin() {
   // --- PUBLISH / UPDATE ---
   const handlePublish = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Ručna provjera jer Quill ne podržava 'required' atribut na isti način
+    if (!content || content === '<p><br></p>') {
+        alert("Molimo unesite tekst objave.");
+        return;
+    }
+
     setLoading(true);
 
     try {
       let finalCoverUrl = coverPreview; 
       
       if (coverImage) {
-        // Sada TS zna da coverImage ima 'name' property jer smo rekli da je File
         const fileName = `cover-${Date.now()}-${coverImage.name}`;
         const { error } = await supabase.storage.from("images").upload(fileName, coverImage);
         if (error) throw error;
@@ -252,7 +273,7 @@ export default function Admin() {
 
       const postData = {
         title,
-        content,
+        content, // Ovo je sada HTML string iz editora
         type: type, 
         slug,
         image_url: finalCoverUrl,
@@ -390,19 +411,17 @@ export default function Admin() {
                     <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Unesite naslov..." required />
                 </div>
 
-                {/* Cover Slika - PROMIJENJENO */}
+                {/* Cover Slika */}
                 <div>
                       <label className="block text-sm font-bold text-gray-700 mb-2">
                         {type === 'podcast' ? "Thumbnail Epizode (Slika)" : "Naslovna Slika"}
                       </label>
                       
-                      {/* FILE INPUT SADA POKREĆE CROPPER */}
                       <input type="file" onChange={handleCoverChange} accept="image/*" className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer" />
                       
                       {coverPreview && (
                         <div className="mt-2 relative h-32 w-full rounded-lg overflow-hidden border border-gray-200">
                            <Image src={coverPreview} alt="Cover preview" fill className="object-cover" />
-                           {/* Dugme za brisanje slike */}
                            <button 
                              type="button" 
                              onClick={() => { setCoverPreview(null); setCoverImage(null); }}
@@ -459,10 +478,20 @@ export default function Admin() {
                 </div>
             )}
 
-            {/* 5. OPIS */}
-            <div>
+            {/* 5. OPIS - SADA SA REACT QUILL EDITOROM */}
+            <div className="mb-12">
               <label className="block text-sm font-bold text-gray-700 mb-2">Opis / Tekst</label>
-              <textarea value={content} onChange={(e) => setContent(e.target.value)} className="w-full p-4 border border-gray-300 rounded-lg h-40 focus:ring-2 focus:ring-blue-500 outline-none" placeholder={type === 'podcast' ? "Kratak opis o čemu se radi u epizodi..." : "Pišite ovdje..."} required />
+              {/* Omotač za editor da bi imao bijelu pozadinu i visinu */}
+              <div className="bg-white h-80 pb-12 rounded-lg overflow-hidden border border-gray-200">
+                <ReactQuill 
+                  theme="snow" 
+                  value={content} 
+                  onChange={setContent} 
+                  modules={modules}
+                  className="h-full"
+                  placeholder={type === 'podcast' ? "Kratak opis o čemu se radi..." : "Pišite ovdje, uredite tekst kao u Wordu..."}
+                />
+              </div>
             </div>
 
             {/* SUBMIT BUTTON */}

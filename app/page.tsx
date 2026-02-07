@@ -6,6 +6,15 @@ import RevealSection from "./components/RevealSection";
 import Image from "next/image"; 
 
 export const revalidate = 0;
+
+// --- POMOĆNA FUNKCIJA ZA ČIŠĆENJE TEKSTA ---
+function stripHtml(html: string | null | undefined) {
+  if (!html) return "";
+  let text = html.replace(/<[^>]*>?/gm, ' '); // Ukloni tagove
+  text = text.replace(/&nbsp;/g, ' '); // Ukloni non-breaking space
+  return text.replace(/\s+/g, ' ').trim(); // Ukloni višak razmaka
+}
+
 // --- 1. FETCH NOVOSTI ---
 async function getLatestNews() {
   const { data: posts, error } = await supabase
@@ -15,30 +24,21 @@ async function getLatestNews() {
     .order("created_at", { ascending: false })
     .limit(3);
 
-  if (error) {
-    console.error("Greška novosti:", error);
-    return [];
-  }
+  if (error) return [];
   return posts || [];
 }
 
-// --- 2. FETCH PODCAST (ZADNJA EPIZODA) ---
-// POPRAVLJENO: Sada traži u tabeli 'posts' gdje je type 'podcast'
+// --- 2. FETCH PODCAST ---
 async function getLatestPodcast() {
   const { data, error } = await supabase
-    .from("posts") // <--- PROMJENA: Tražimo u glavnoj tabeli
+    .from("posts")
     .select("*")
-    .eq("type", "podcast") // <--- PROMJENA: Filtriramo samo podcaste
+    .eq("type", "podcast")
     .order("created_at", { ascending: false })
     .limit(1)
     .single();
 
-  if (error) {
-    // Ovo će se ispisati u tvom VS Code terminalu (ne u browseru)
-    console.log("DEBUG - Greška pri učitavanju podcasta:", error.message);
-    console.log("Kod greške:", error.code);
-    return null; 
-  }
+  if (error) return null; 
   return data;
 }
 
@@ -52,10 +52,7 @@ async function getLatestProject() {
     .limit(1)
     .single();
 
-  if (error) {
-    console.error("Greška projekat:", error);
-    return null;
-  }
+  if (error) return null;
   return data;
 }
 
@@ -64,14 +61,15 @@ export default async function Home() {
   const podcast = await getLatestPodcast();
   const latestProject = await getLatestProject();
 
-  // Ovdje provjeri u terminalu da li je podcast učitan
-  console.log("Učitani podcast podaci:", podcast); 
+  // Priprema čistog teksta
+  const cleanPodcastDesc = podcast ? stripHtml(podcast.content) : "";
+  const cleanProjectDesc = latestProject ? stripHtml(latestProject.content) : "";
 
   return (
     <main className="min-h-screen bg-white text-gray-800 font-sans">
       
-    {/* 1. HERO SEKCIJA - SLIDESHOW */}
-      <section className="relative h-[600px] lg:h-[800px] flex items-center overflow-hidden">
+    {/* 1. HERO SEKCIJA - IZMJENE (MAKNUO OKVIR I BLUR) */}
+      <section className="relative h-[650px] md:h-[700px] lg:h-[850px] flex items-center overflow-hidden">
         
         <style dangerouslySetInnerHTML={{__html: `
           @keyframes fadeZoom {
@@ -94,29 +92,34 @@ export default async function Home() {
           .delay-3 { animation-delay: 10s; }
         `}} />
 
-        <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 z-0 bg-slate-900">
           <div className="slide-bg delay-1" style={{ backgroundImage: "url('/hero/hero4.webp')" }}></div>
           <div className="slide-bg delay-2" style={{ backgroundImage: "url('/hero/hero2.webp')" }}></div>
           <div className="slide-bg delay-3" style={{ backgroundImage: "url('/hero/hero1.webp')" }}></div>
         </div>
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/60 to-transparent z-10"></div>
+        
+        {/* Tamniji overlay za bolju čitljivost */}
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-900/90 via-slate-900/60 to-transparent z-10"></div>
 
-        <div className="relative z-20 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full">
-            <div className="max-w-2xl mt-48 md:mt-0"> 
-             <h1 className="flex flex-col text-3xl md:text-6xl font-black tracking-tight leading-tight md:leading-none mb-4 md:mb-6 drop-shadow-lg">
+        <div className="relative z-20 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full flex flex-col justify-center h-full">
+            <div className="max-w-3xl mt-0 md:mt-0"> 
+             <h1 className="flex flex-col text-4xl sm:text-5xl md:text-7xl font-black tracking-tight leading-[1.1] mb-6 drop-shadow-2xl">
                 <span className="text-white">FONDACIJA</span>
                 <span className="text-blue-500">DULJEVIĆ</span>
              </h1>
-              
-             <p className="text-sm md:text-xl text-gray-200 mb-6 md:mb-8 leading-relaxed font-light border-l-4 border-blue-500 pl-4 md:pl-6 max-w-lg">
-                Pružamo ruku onima kojima je najpotrebnija.<br />
-                Kroz stipendije, humanitarnu pomoć i edukaciju gradimo društvo jednakih šansi.<br />
-                Vaša podrška je temelj nečije bolje budućnosti.
-            </p> 
+             
+             {/* OVDJE SAM UKLONIO OKVIR, BORDER I BACKGROUND */}
+             <div className="mb-8 max-w-xl">
+                 <p className="text-base sm:text-lg md:text-xl text-gray-100 leading-relaxed font-light drop-shadow-md">
+                   Pružamo ruku onima kojima je najpotrebnija.
+                   Kroz stipendije, humanitarnu pomoć i edukaciju gradimo društvo jednakih šansi.
+                </p> 
+             </div>
+
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link
                   href="/onama"
-                  className="inline-flex justify-center items-center px-6 py-3 md:px-8 md:py-4 text-sm md:text-base font-bold text-white border-2 border-white rounded-full hover:bg-white hover:text-slate-900 transition duration-300"
+                  className="inline-flex justify-center items-center px-6 py-3.5 md:px-8 md:py-4 text-sm md:text-base font-bold text-white border-2 border-white rounded-full hover:bg-white hover:text-slate-900 transition duration-300"
                 >
                   Upoznaj nas <FaArrowRight className="ml-2" />
                 </Link>
@@ -132,11 +135,10 @@ export default async function Home() {
 
     {/* 3. NAŠ TIM */}
       <RevealSection>
-        <section className="py-24 bg-white overflow-hidden">
+        <section className="py-16 md:py-24 bg-white overflow-hidden">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <div className="lg:grid lg:grid-cols-2 lg:gap-16 items-center">
               
-              {/* LIJEVA STRANA: TEKST */}
               <div className="mb-12 lg:mb-0">
                 <div className="inline-flex items-center px-3 py-1 rounded-full bg-blue-50 text-blue-800 text-xs font-bold uppercase tracking-wide mb-6">
                   <FaUsers className="mr-2" /> Naša snaga
@@ -154,38 +156,51 @@ export default async function Home() {
                   Upoznaj naš tim <FaArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </div>
+<div className="relative">
+    {/* Pozadinski blur */}
+    <div className="absolute -top-4 -right-4 w-72 h-72 md:w-96 md:h-96 bg-[#be1e2d]/10 rounded-full blur-3xl -z-10"></div>
+    
+    {/* GRID: Na mobitelu 2 kolone, na tabletu 2, na PC-u 2 */}
+    <div className="grid grid-cols-2 gap-4 md:gap-6 lg:gap-8 relative z-10">
+        
+        {/* --- PRVA SLIKA --- */}
+        {/* KLJUČNO: Ovdje definišemo visinu okvira za svaki uređaj posebno */}
+        {/* h-48 (mobitel), md:h-72 (tablet), lg:h-[500px] (PC/Laptop) */}
+        <div className="relative w-full h-48 sm:h-64 md:h-72 lg:h-[500px] bg-slate-200 rounded-2xl overflow-hidden shadow-lg border border-slate-200 group">
+            <Image 
+                src="/hero8.jpg" 
+                alt="Hako Duljević" 
+                fill 
+                className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                sizes="(max-width: 768px) 50vw, (max-width: 1200px) 50vw, 33vw"
+                priority={true}
+            />
+        </div>
 
-            {/* DESNA STRANA: SLIKE */}
-              <div className="relative">
-                <div className="absolute -top-4 -right-4 w-72 h-72 bg-[#be1e2d]/10 rounded-full blur-3xl"></div>
-                <div className="grid grid-cols-2 gap-6 relative z-10 items-start">
-                  <div className="relative bg-slate-100 rounded-2xl h-64 lg:h-80 w-full overflow-hidden shadow-lg border border-slate-200 transform transition-transform duration-500 hover:scale-[1.02]">
-                      <Image 
-                        src="/hero8.jpg" 
-                        alt="Hako Duljević" 
-                        fill 
-                        className="object-cover object-[53%_center]" 
-                      />
-                  </div>
-                  <div className="relative bg-slate-100 rounded-2xl h-64 lg:h-80 w-full overflow-hidden shadow-lg border border-slate-200 transform transition-transform duration-500 hover:scale-[1.02]">
-                      <Image 
-                        src="/hero6.jpeg" 
-                        alt="Damir Mahmutović" 
-                        fill 
-                        className="object-cover" 
-                      />
-                  </div>
-                </div>
-              </div>
+        {/* --- DRUGA SLIKA --- */}
+        {/* Iste klase kao prva slika da budu iste visine */}
+        <div className="relative w-full h-48 sm:h-64 md:h-72 lg:h-[500px] bg-slate-200 rounded-2xl overflow-hidden shadow-lg border border-slate-200 group">
+            <Image 
+                src="/hero6.jpeg" 
+                alt="Damir Mahmutović" 
+                fill 
+                className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                sizes="(max-width: 768px) 50vw, (max-width: 1200px) 50vw, 33vw"
+                priority={true}
+            />
+        </div>
+
+    </div>
+</div>
 
             </div>
           </div>
         </section>
       </RevealSection>
 
-      {/* 4. PARTNERI */}
+    {/* 4. PARTNERI */}
       <RevealSection>
-        <section className="py-24 bg-slate-900 text-white relative overflow-hidden">
+        <section className="py-16 md:py-24 bg-slate-900 text-white relative overflow-hidden">
           <div className="absolute top-0 left-0 w-64 h-64 bg-blue-600 rounded-full mix-blend-multiply filter blur-3xl opacity-10"></div>
           <div className="absolute top-0 right-0 w-64 h-64 bg-purple-600 rounded-full mix-blend-multiply filter blur-3xl opacity-10"></div>
 
@@ -199,7 +214,7 @@ export default async function Home() {
                 <p className="text-gray-300 text-lg leading-relaxed mb-6">
                   Ako ste preduzetnik ili organizacija, pozivamo vas da postanete naš partner u ostvarivanju zajedničkih ciljeva. 
                 </p>
-                <Link href="/kontakt" className="inline-block bg-white text-slate-900 font-bold py-4 px-8 rounded-lg hover:bg-blue-50 transition transform hover:-translate-y-1 shadow-lg">
+                <Link href="/kontakt" className="inline-block bg-white text-slate-900 font-bold py-3 px-6 md:py-4 md:px-8 rounded-lg hover:bg-blue-50 transition transform hover:-translate-y-1 shadow-lg">
                   Pridruži se timu
                 </Link>
               </div>
@@ -213,109 +228,100 @@ export default async function Home() {
           </div>
         </section>
       </RevealSection>
-{/* --- NOVA EPIZODA SEKCIJA (FINALNA I USKLAĐENA S BAZOM) --- */}
+
+{/* --- NOVA EPIZODA SEKCIJA --- */}
       {podcast && (
         <RevealSection>
-          <section className="py-24 bg-white">
-            <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <section className="py-16 md:py-24 bg-white">
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
               
-              {/* ZAGLAVLJE: NASLOV I LINK */}
-              <div className="flex justify-between items-end mb-12">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end mb-8 md:mb-12 gap-4">
                 <div className="flex items-center gap-4">
-                   <div className="w-2 h-10 bg-blue-600 rounded-full"></div>
-                   <h2 className="text-4xl font-bold text-slate-900">Nova epizoda</h2>
+                   <div className="w-1.5 h-10 md:w-2 md:h-10 bg-blue-600 rounded-full"></div>
+                   <h2 className="text-3xl md:text-4xl font-bold text-slate-900">Nova epizoda</h2>
                 </div>
                 
                 <Link 
                   href="/podcast" 
-                  className="text-blue-600 font-bold hover:text-blue-800 flex items-center gap-2 transition-colors"
+                  className="text-blue-600 font-bold hover:text-blue-800 flex items-center gap-2 transition-colors text-sm md:text-base"
                 >
                   Sve epizode <FaArrowRight />
                 </Link>
               </div>
 
               {/* PODCAST KARTICA */}
-              <div className="group relative bg-slate-900 rounded-[2.5rem] overflow-hidden shadow-2xl transition-all hover:shadow-blue-900/20">
+              <div className="group relative bg-slate-900 rounded-2xl md:rounded-[2.5rem] overflow-hidden shadow-2xl transition-all hover:shadow-blue-900/20">
                  
-                 {/* Gradient Overlay */}
                  <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/90 to-transparent z-10 pointer-events-none"></div>
                  
                  <div className="grid lg:grid-cols-2 gap-0 relative z-20">
-                    
-                    {/* LIJEVA STRANA: TEKST */}
-                    <div className="p-8 md:p-12 flex flex-col justify-center order-2 lg:order-1">
-                        
-                        {/* Datum */}
-                        <span className="text-blue-400 font-bold tracking-widest text-sm uppercase mb-4">
-                          {new Date(podcast.created_at).toLocaleDateString('hr-BA')}
-                        </span>
-                        
-                        {/* Naslov */}
-                        <h3 className="text-3xl md:text-5xl font-bold text-white mb-6 leading-tight group-hover:text-blue-400 transition-colors">
-                          {podcast.title}
-                        </h3>
-                        
-                        {/* Opis */}
-                        <p className="text-slate-300 text-lg mb-8 leading-relaxed line-clamp-3">
-                          {podcast.content || "Pogledajte najnoviju epizodu našeg podcasta..."}
-                        </p>
-                        
-                        {/* --- OVDJE SU BILE GREŠKE --- */}
-                        <div className="flex flex-wrap gap-4 mb-8">
-                           {/* Provjeravamo guest_name jer se tako zove u bazi */}
-                           {podcast.guest_name && (
-                               <div className="bg-[#111827] px-5 py-3 rounded-2xl border border-gray-800 min-w-[120px]">
-                                   <span className="text-blue-500 text-[10px] font-bold block uppercase tracking-wider mb-1">
-                                     Gost
-                                   </span>
-                                   <span className="text-white font-bold text-lg">
-                                     {podcast.guest_name}
-                                   </span>
+                   
+                   {/* LIJEVA STRANA: TEKST */}
+                   <div className="p-6 md:p-10 lg:p-12 flex flex-col justify-center order-2 lg:order-1">
+                       
+                       <span className="text-blue-400 font-bold tracking-widest text-xs uppercase mb-3 md:mb-4">
+                         {new Date(podcast.created_at).toLocaleDateString('hr-BA')}
+                       </span>
+                       
+                       <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 md:mb-6 leading-tight group-hover:text-blue-400 transition-colors">
+                         {podcast.title}
+                       </h3>
+                       
+                       <p className="text-slate-300 text-sm md:text-lg mb-6 md:mb-8 leading-relaxed line-clamp-3">
+                         {cleanPodcastDesc || "Pogledajte najnoviju epizodu našeg podcasta..."}
+                       </p>
+                       
+                       <div className="flex flex-wrap gap-3 md:gap-4 mb-6 md:mb-8">
+                          {podcast.guest_name && (
+                              <div className="bg-[#111827] px-4 py-2 md:px-5 md:py-3 rounded-xl md:rounded-2xl border border-gray-800">
+                                  <span className="text-blue-500 text-[9px] md:text-[10px] font-bold block uppercase tracking-wider mb-1">
+                                    Gost
+                                  </span>
+                                  <span className="text-white font-bold text-sm md:text-lg whitespace-nowrap">
+                                    {podcast.guest_name}
+                                  </span>
+                              </div>
+                          )}
+                          
+                          {podcast.video_duration && (
+                               <div className="bg-[#111827] px-4 py-2 md:px-5 md:py-3 rounded-xl md:rounded-2xl border border-gray-800">
+                                  <span className="text-blue-500 text-[9px] md:text-[10px] font-bold block uppercase tracking-wider mb-1">
+                                    Trajanje
+                                  </span>
+                                  <span className="text-white font-bold text-sm md:text-lg whitespace-nowrap">
+                                    {podcast.video_duration} min
+                                  </span>
                                </div>
-                           )}
-                           
-                           {/* Provjeravamo video_duration jer se tako zove u bazi */}
-                           {podcast.video_duration && (
-                                <div className="bg-[#111827] px-5 py-3 rounded-2xl border border-gray-800 min-w-[120px]">
-                                   <span className="text-blue-500 text-[10px] font-bold block uppercase tracking-wider mb-1">
-                                     Trajanje
-                                   </span>
-                                   <span className="text-white font-bold text-lg">
-                                     {podcast.video_duration} min
-                                   </span>
-                                </div>
-                           )}
-                        </div>
-                        {/* --------------------------- */}
+                          )}
+                       </div>
 
-                        {/* Dugme Gledaj Odmah - ispravljen link na youtube_link */}
-                        <div className="flex items-center gap-4">
-                            <a 
-                              href={podcast.youtube_link || "#"} 
-                              target="_blank" 
-                              className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-600 text-white hover:bg-blue-500 transition-all hover:scale-110 shadow-lg shadow-blue-600/30"
-                            >
-                                <FaPlay className="ml-1 text-2xl" />
-                            </a>
-                            <span className="text-white font-bold text-lg">Gledaj odmah</span>
-                        </div>
-                    </div>
+                       <div className="flex items-center gap-4">
+                           <a 
+                             href={podcast.youtube_link || "#"} 
+                             target="_blank" 
+                             className="inline-flex items-center justify-center w-12 h-12 md:w-16 md:h-16 rounded-full bg-blue-600 text-white hover:bg-blue-500 transition-all hover:scale-110 shadow-lg shadow-blue-600/30"
+                           >
+                               <FaPlay className="ml-1 text-lg md:text-2xl" />
+                           </a>
+                           <span className="text-white font-bold text-base md:text-lg">Gledaj odmah</span>
+                       </div>
+                   </div>
 
-                    {/* DESNA STRANA: SLIKA */}
-                    <div className="relative w-full h-64 sm:h-80 lg:h-auto lg:min-h-full order-1 lg:order-2 bg-slate-800">
-                        {podcast.image_url ? (
-                            <Image 
-                                src={podcast.image_url} 
-                                alt={podcast.title}
-                                fill
-                                className="object-cover object-top lg:object-center transition-transform duration-700 group-hover:scale-105"
-                            />
-                        ) : (
-                            <div className="w-full h-full flex flex-col items-center justify-center text-slate-500 border-b lg:border-b-0 lg:border-l border-slate-700">
-                                <span className="text-sm font-medium">Nema slike</span>
-                            </div>
-                        )}
-                    </div>
+                   {/* DESNA STRANA: SLIKA */}
+                   <div className="relative w-full h-56 sm:h-72 md:h-80 lg:h-auto lg:min-h-full order-1 lg:order-2 bg-slate-800">
+                       {podcast.image_url ? (
+                           <Image 
+                             src={podcast.image_url} 
+                             alt={podcast.title}
+                             fill
+                             className="object-cover object-top lg:object-center transition-transform duration-700 group-hover:scale-105"
+                           />
+                       ) : (
+                           <div className="w-full h-full flex flex-col items-center justify-center text-slate-500">
+                               <span className="text-sm font-medium">Nema slike</span>
+                           </div>
+                       )}
+                   </div>
 
                  </div>
               </div>
@@ -324,18 +330,18 @@ export default async function Home() {
           </section>
         </RevealSection>
       )}
-      {/* 5. POSLEDNJE 3 NOVOSTI IZ BAZE */}
+
+    {/* 5. POSLEDNJE 3 NOVOSTI IZ BAZE */}
       <RevealSection>
         <section className="py-16 bg-gray-50">
-          <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             
-            <div className="flex justify-between items-end mb-12">
+            <div className="flex justify-between items-end mb-10 md:mb-12">
                 <div className="flex items-start gap-4">
-                  {/* PLAVA VERTKALNA CRTICA */}
-                  <div className="w-1.5 h-12 bg-blue-600 rounded-full mt-1"></div>
+                  <div className="w-1.5 h-10 md:h-12 bg-blue-600 rounded-full mt-1"></div>
                   <div>
-                    <h2 className="text-3xl font-bold text-gray-900">Poslednje Novosti</h2>
-                    <p className="text-gray-500 mt-2">Pratite naše aktivnosti i budite u toku.</p>
+                    <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Poslednje Novosti</h2>
+                    <p className="text-gray-500 text-sm md:text-base mt-1 md:mt-2">Pratite naše aktivnosti i budite u toku.</p>
                   </div>
                 </div>
                 
@@ -345,47 +351,46 @@ export default async function Home() {
             </div>
 
             {novosti.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {novosti.map((post: any) => (
-                  <div key={post.id} className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition duration-300 border border-gray-100 group flex flex-col h-full">
-                    <div className="h-48 bg-gray-200 relative overflow-hidden">
-                        {post.image_url ? (
-                           <Image 
-                            src={post.image_url} 
-                            alt={post.title} 
-                            fill
-                            className="object-cover transition duration-500 group-hover:scale-105"
-                          />
-                        ) : (
-                          <div className="flex items-center justify-center h-full text-gray-400">
-                            <FaRegNewspaper className="text-4xl opacity-50" />
-                          </div>
-                        )}
-                        
-                        {post.category && (
-                          <div className="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded text-xs font-bold text-gray-800 uppercase z-10">
-                            {post.category}
-                          </div>
-                        )}
-                    </div>
-                    
-                    <div className="p-6 flex flex-col flex-grow">
-                      <div className="text-xs text-gray-400 mb-2">
-                        {new Date(post.created_at).toLocaleDateString('hr-BA')}
+              // FIX: Dodao sam md:grid-cols-2 za tablete (prije je bilo 3)
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                {novosti.map((post: any) => {
+                  const cleanNewsContent = stripHtml(post.content);
+                  return (
+                    <div key={post.id} className="bg-white rounded-xl md:rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition duration-300 border border-gray-100 group flex flex-col h-full">
+                      <div className="h-48 bg-gray-200 relative overflow-hidden">
+                          {post.image_url ? (
+                             <Image 
+                              src={post.image_url} 
+                              alt={post.title} 
+                              fill
+                              className="object-cover transition duration-500 group-hover:scale-105"
+                             />
+                          ) : (
+                            <div className="flex items-center justify-center h-full text-gray-400">
+                              <FaRegNewspaper className="text-4xl opacity-50" />
+                            </div>
+                          )}
                       </div>
-                      <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition">
-                        {post.title}
-                      </h3>
-                      <p className="text-gray-600 text-sm line-clamp-3 mb-4 flex-grow">
-                        {post.content ? post.content.substring(0, 100) + "..." : ""}
-                      </p>
                       
-                      <Link href={`/blog/${post.slug}`} className="text-sm font-bold text-[#be1e2d] hover:underline mt-auto">
-                        Pročitaj više
-                      </Link>
+                      <div className="p-5 md:p-6 flex flex-col flex-grow">
+                        <div className="text-xs text-gray-400 mb-2">
+                          {new Date(post.created_at).toLocaleDateString('hr-BA')}
+                        </div>
+                        <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition line-clamp-2">
+                          {post.title}
+                        </h3>
+                        {/* ČISTI TEKST */}
+                        <p className="text-gray-600 text-sm line-clamp-3 mb-4 flex-grow">
+                          {cleanNewsContent}
+                        </p>
+                        
+                        <Link href={`/blog/${post.slug || post.id}`} className="text-sm font-bold text-[#be1e2d] hover:underline mt-auto">
+                          Pročitaj više
+                        </Link>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
                 <div className="text-center py-10 text-gray-500">
@@ -405,24 +410,23 @@ export default async function Home() {
       {/* --- SEKCIJA PROJEKAT --- */}
       {latestProject && (
         <RevealSection>
-            <section className="py-20 bg-white border-t border-gray-100">
-                <div className="mx-auto max-w-7xl px-6 lg:px-8">
+            <section className="py-16 md:py-20 bg-white border-t border-gray-100">
+                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     
-                    <div className="flex justify-between items-center mb-10">
+                    <div className="flex justify-between items-center mb-8 md:mb-10">
                         <div className="flex items-center gap-4">
-                             {/* ZELENA VERTKALNA CRTICA */}
-                            <div className="w-1.5 h-10 bg-green-500 rounded-full"></div>
-                            <h2 className="text-3xl font-bold text-gray-900">Projekat</h2>
+                            <div className="w-1.5 h-8 md:h-10 bg-green-500 rounded-full"></div>
+                            <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Projekat</h2>
                         </div>
-                        <Link href="/projekti" className="text-blue-600 font-bold hover:text-blue-800 flex items-center gap-2">
+                        <Link href="/projekti" className="text-blue-600 font-bold hover:text-blue-800 flex items-center gap-2 text-sm md:text-base">
                              Svi projekti <FaArrowRight />
                         </Link>
                     </div>
 
-                    <div className="group relative bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 hover:shadow-2xl transition-all duration-300">
+                    <div className="group relative bg-white rounded-2xl md:rounded-3xl shadow-xl overflow-hidden border border-gray-100 hover:shadow-2xl transition-all duration-300">
                         <div className="grid md:grid-cols-2 h-full">
                             {/* Slika Projekta */}
-                            <div className="relative h-64 md:h-auto overflow-hidden">
+                            <div className="relative h-56 sm:h-72 md:h-auto overflow-hidden min-h-[300px]">
                                 {latestProject.image_url ? (
                                     <Image 
                                         src={latestProject.image_url} 
@@ -435,26 +439,27 @@ export default async function Home() {
                                         <FaHandshake className="text-6xl text-gray-300"/>
                                     </div>
                                 )}
-                                <div className="absolute top-4 left-4 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                                <div className="absolute top-4 left-4 bg-green-500 text-white text-[10px] md:text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
                                     Aktuelno
                                 </div>
                             </div>
 
                             {/* Detalji Projekta */}
-                            <div className="p-8 md:p-12 flex flex-col justify-center bg-white">
-                                <div className="text-sm text-gray-500 mb-2 font-medium">
+                            <div className="p-6 md:p-10 lg:p-12 flex flex-col justify-center bg-white">
+                                <div className="text-xs md:text-sm text-gray-500 mb-2 font-medium">
                                     {new Date(latestProject.created_at).toLocaleDateString('hr-BA')}
                                 </div>
-                                <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 group-hover:text-blue-600 transition">
+                                <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 mb-4 group-hover:text-blue-600 transition">
                                     {latestProject.title}
                                 </h3>
-                                <p className="text-gray-600 mb-8 leading-relaxed line-clamp-3">
-                                    {latestProject.content || "Pogledajte detalje o našem najnovijem humanitarnom projektu..."}
+                                {/* ČISTI TEKST */}
+                                <p className="text-gray-600 text-sm md:text-base mb-8 leading-relaxed line-clamp-3 md:line-clamp-4">
+                                    {cleanProjectDesc || "Pogledajte detalje o našem najnovijem humanitarnom projektu..."}
                                 </p>
                                 
                                 <Link 
-                                    href={`/projekti/${latestProject.slug}`} 
-                                    className="inline-flex items-center text-white bg-[#be1e2d] hover:bg-red-700 font-bold py-3 px-6 rounded-lg transition-colors w-fit shadow-md"
+                                    href={`/projekti/${latestProject.slug || latestProject.id}`} 
+                                    className="inline-flex items-center text-white bg-[#be1e2d] hover:bg-red-700 font-bold py-3 px-5 md:py-3 md:px-6 rounded-lg transition-colors w-fit shadow-md text-sm md:text-base"
                                 >
                                     Saznaj više o akciji <FaArrowRight className="ml-2"/>
                                 </Link>
@@ -470,10 +475,10 @@ export default async function Home() {
       <RevealSection>
         <section className="relative w-full py-12 lg:py-24 bg-white">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="grid md:grid-cols-2 rounded-[2.5rem] overflow-hidden shadow-2xl">
+            <div className="grid md:grid-cols-2 rounded-2xl md:rounded-[2.5rem] overflow-hidden shadow-2xl">
               
               {/* LIJEVA STRANA */}
-              <div className="relative bg-slate-900 text-white p-10 lg:p-20 flex flex-col justify-center overflow-hidden">
+              <div className="relative bg-slate-900 text-white p-8 md:p-12 lg:p-20 flex flex-col justify-center overflow-hidden">
                 <div className="absolute top-0 left-0 w-64 h-64 bg-blue-600 rounded-full mix-blend-overlay filter blur-3xl opacity-20"></div>
                 
                 <div className="relative z-10">
@@ -481,11 +486,11 @@ export default async function Home() {
                     <FaUsers className="mr-2" /> Uključi se
                   </div>
                   
-                  <h2 className="text-3xl lg:text-4xl font-black mb-6 leading-tight">
+                  <h2 className="text-2xl md:text-3xl lg:text-4xl font-black mb-6 leading-tight">
                     Želite dati doprinos radu Fondacije?
                   </h2>
                   
-                  <div className="space-y-6 text-gray-300 text-lg mb-10">
+                  <div className="space-y-6 text-gray-300 text-base md:text-lg mb-10">
                     <p>
                       <strong className="text-white block mb-1">Pridružite se:</strong> 
                       Postanite volonter i aktivno učestvujte u našim projektima.
@@ -498,7 +503,7 @@ export default async function Home() {
 
                   <Link
                     href="/kontakt"
-                    className="inline-flex items-center justify-center bg-white text-slate-900 text-base font-bold py-4 px-8 rounded-2xl shadow-lg hover:bg-blue-50 transition transform hover:-translate-y-1"
+                    className="inline-flex items-center justify-center bg-white text-slate-900 text-base font-bold py-3 px-6 md:py-4 md:px-8 rounded-xl md:rounded-2xl shadow-lg hover:bg-blue-50 transition transform hover:-translate-y-1"
                   >
                     Postani Volonter <FaArrowRight className="ml-2" />
                   </Link>
@@ -506,7 +511,7 @@ export default async function Home() {
               </div>
 
               {/* DESNA STRANA */}
-              <div className="relative bg-[#be1e2d] text-white p-10 lg:p-20 flex flex-col justify-center overflow-hidden">
+              <div className="relative bg-[#be1e2d] text-white p-8 md:p-12 lg:p-20 flex flex-col justify-center overflow-hidden">
                 <div className="absolute bottom-0 right-0 w-80 h-80 bg-red-900 rounded-full mix-blend-multiply filter blur-3xl opacity-30"></div>
 
                 <div className="relative z-10">
@@ -514,17 +519,17 @@ export default async function Home() {
                     <FaHandHoldingHeart className="mr-2" /> Podrži nas
                   </div>
 
-                  <h2 className="text-3xl lg:text-4xl font-black mb-6 leading-tight">
+                  <h2 className="text-2xl md:text-3xl lg:text-4xl font-black mb-6 leading-tight">
                     Vaša donacija mijenja živote.
                   </h2>
 
-                  <p className="text-red-100 text-lg mb-10 leading-relaxed">
+                  <p className="text-red-100 text-base md:text-lg mb-10 leading-relaxed">
                     Vaša donacija omogućava Fondaciji da unaprijedi realizaciju svojih misija. Svaka marka ide direktno onima kojima je najpotrebnija.
                   </p>
 
                   <Link
                     href="/donacije"
-                    className="inline-flex items-center justify-center bg-slate-900 text-white text-base font-bold py-4 px-8 rounded-2xl shadow-xl hover:bg-slate-800 transition transform hover:-translate-y-1 border border-slate-800"
+                    className="inline-flex items-center justify-center bg-slate-900 text-white text-base font-bold py-3 px-6 md:py-4 md:px-8 rounded-xl md:rounded-2xl shadow-xl hover:bg-slate-800 transition transform hover:-translate-y-1 border border-slate-800"
                   >
                     DONIRAJ SADA 
                   </Link>

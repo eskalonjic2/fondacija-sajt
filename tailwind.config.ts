@@ -14,6 +14,8 @@ const config: Config = {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    require('@tailwindcss/typography'), // <--- OVO JE DIO KOJI JE NEDOSTAJAO
+  ],
 };
 export default config;
