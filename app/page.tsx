@@ -47,8 +47,8 @@ async function getLatestProject() {
   const { data, error } = await supabase
     .from("posts")
     .select("*")
-    .eq("type", "project") 
-    .order("created_at", { ascending: false })
+    .eq("type", "project") // Dohvata samo tip 'project'
+    .order("created_at", { ascending: false }) // Najnoviji
     .limit(1)
     .single();
 
@@ -68,7 +68,7 @@ export default async function Home() {
   return (
     <main className="min-h-screen bg-white text-gray-800 font-sans">
       
-    {/* 1. HERO SEKCIJA - IZMJENE (MAKNUO OKVIR I BLUR) */}
+    {/* 1. HERO SEKCIJA */}
       <section className="relative h-[650px] md:h-[700px] lg:h-[850px] flex items-center overflow-hidden">
         
         <style dangerouslySetInnerHTML={{__html: `
@@ -108,7 +108,6 @@ export default async function Home() {
                 <span className="text-blue-500">DULJEVIĆ</span>
              </h1>
              
-             {/* OVDJE SAM UKLONIO OKVIR, BORDER I BACKGROUND */}
              <div className="mb-8 max-w-xl">
                  <p className="text-base sm:text-lg md:text-xl text-gray-100 leading-relaxed font-light drop-shadow-md">
                    Pružamo ruku onima kojima je najpotrebnija.
@@ -156,42 +155,37 @@ export default async function Home() {
                   Upoznaj naš tim <FaArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </div>
-<div className="relative">
-    {/* Pozadinski blur */}
-    <div className="absolute -top-4 -right-4 w-72 h-72 md:w-96 md:h-96 bg-[#be1e2d]/10 rounded-full blur-3xl -z-10"></div>
-    
-    {/* GRID: Na mobitelu 2 kolone, na tabletu 2, na PC-u 2 */}
-    <div className="grid grid-cols-2 gap-4 md:gap-6 lg:gap-8 relative z-10">
-        
-        {/* --- PRVA SLIKA --- */}
-        {/* KLJUČNO: Ovdje definišemo visinu okvira za svaki uređaj posebno */}
-        {/* h-48 (mobitel), md:h-72 (tablet), lg:h-[500px] (PC/Laptop) */}
-        <div className="relative w-full h-48 sm:h-64 md:h-72 lg:h-[500px] bg-slate-200 rounded-2xl overflow-hidden shadow-lg border border-slate-200 group">
-            <Image 
-                src="/hero8.jpg" 
-                alt="Hako Duljević" 
-                fill 
-                className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
-                sizes="(max-width: 768px) 50vw, (max-width: 1200px) 50vw, 33vw"
-                priority={true}
-            />
-        </div>
+              <div className="relative">
+                  {/* Pozadinski blur */}
+                  <div className="absolute -top-4 -right-4 w-72 h-72 md:w-96 md:h-96 bg-[#be1e2d]/10 rounded-full blur-3xl -z-10"></div>
+                  
+                  {/* GRID SLIKA TIMA */}
+                  <div className="grid grid-cols-2 gap-4 md:gap-6 lg:gap-8 relative z-10">
+                      
+                      <div className="relative w-full h-48 sm:h-64 md:h-72 lg:h-[500px] bg-slate-200 rounded-2xl overflow-hidden shadow-lg border border-slate-200 group">
+                          <Image 
+                              src="/hero8.webp" 
+                              alt="Hako Duljević" 
+                              fill 
+                              className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                              sizes="(max-width: 768px) 50vw, (max-width: 1200px) 50vw, 33vw"
+                              priority={true}
+                          />
+                      </div>
 
-        {/* --- DRUGA SLIKA --- */}
-        {/* Iste klase kao prva slika da budu iste visine */}
-        <div className="relative w-full h-48 sm:h-64 md:h-72 lg:h-[500px] bg-slate-200 rounded-2xl overflow-hidden shadow-lg border border-slate-200 group">
-            <Image 
-                src="/hero6.jpeg" 
-                alt="Damir Mahmutović" 
-                fill 
-                className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
-                sizes="(max-width: 768px) 50vw, (max-width: 1200px) 50vw, 33vw"
-                priority={true}
-            />
-        </div>
+                      <div className="relative w-full h-48 sm:h-64 md:h-72 lg:h-[500px] bg-slate-200 rounded-2xl overflow-hidden shadow-lg border border-slate-200 group">
+                          <Image 
+                              src="/hero6.webp" 
+                              alt="Damir Mahmutović" 
+                              fill 
+                              className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                              sizes="(max-width: 768px) 50vw, (max-width: 1200px) 50vw, 33vw"
+                              priority={true}
+                          />
+                      </div>
 
-    </div>
-</div>
+                  </div>
+              </div>
 
             </div>
           </div>
@@ -229,7 +223,7 @@ export default async function Home() {
         </section>
       </RevealSection>
 
-{/* --- NOVA EPIZODA SEKCIJA --- */}
+    {/* --- NOVA EPIZODA SEKCIJA --- */}
       {podcast && (
         <RevealSection>
           <section className="py-16 md:py-24 bg-white">
@@ -351,7 +345,6 @@ export default async function Home() {
             </div>
 
             {novosti.length > 0 ? (
-              // FIX: Dodao sam md:grid-cols-2 za tablete (prije je bilo 3)
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                 {novosti.map((post: any) => {
                   const cleanNewsContent = stripHtml(post.content);
@@ -418,7 +411,7 @@ export default async function Home() {
                             <div className="w-1.5 h-8 md:h-10 bg-green-500 rounded-full"></div>
                             <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Projekat</h2>
                         </div>
-                        <Link href="/projekti" className="text-blue-600 font-bold hover:text-blue-800 flex items-center gap-2 text-sm md:text-base">
+                        <Link href="/blog" className="text-blue-600 font-bold hover:text-blue-800 flex items-center gap-2 text-sm md:text-base">
                              Svi projekti <FaArrowRight />
                         </Link>
                     </div>
@@ -457,8 +450,9 @@ export default async function Home() {
                                     {cleanProjectDesc || "Pogledajte detalje o našem najnovijem humanitarnom projektu..."}
                                 </p>
                                 
+                                {/* OVDJE JE PROMJENA LINKA */}
                                 <Link 
-                                    href={`/projekti/${latestProject.slug || latestProject.id}`} 
+                                    href={`/blog/${latestProject.id}`} 
                                     className="inline-flex items-center text-white bg-[#be1e2d] hover:bg-red-700 font-bold py-3 px-5 md:py-3 md:px-6 rounded-lg transition-colors w-fit shadow-md text-sm md:text-base"
                                 >
                                     Saznaj više o akciji <FaArrowRight className="ml-2"/>

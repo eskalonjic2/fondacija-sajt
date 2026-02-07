@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
 import RevealSection from "../components/RevealSection"; 
-import { FaMicrophone, FaNewspaper } from "react-icons/fa"; 
+import { FaMicrophone, FaNewspaper, FaProjectDiagram } from "react-icons/fa"; 
 
 interface Post {
   id: number;
@@ -21,11 +21,8 @@ interface Post {
 // ---------------------------------------------------------
 function stripHtml(html: string) {
   if (!html) return "";
-  // 1. Ukloni sve HTML tagove
   let text = html.replace(/<[^>]*>?/gm, ' ');
-  // 2. Zamijeni &nbsp; sa običnim razmakom
   text = text.replace(/&nbsp;/g, ' ');
-  // 3. Sredi višak razmaka
   return text.replace(/\s+/g, ' ').trim();
 }
 
@@ -35,10 +32,10 @@ export default function Blog() {
 
   useEffect(() => {
     const fetchPosts = async () => {
+      // IZMJENA: Uklonili smo .neq("type", "project") da bi učitali I projekte
       const { data, error } = await supabase
         .from("posts")
         .select("*")
-        .neq("type", "project") // Daj sve osim projekata
         .order("created_at", { ascending: false });
 
       if (error) {
@@ -55,7 +52,7 @@ export default function Blog() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-         <div className="animate-pulse text-blue-600 font-semibold text-xl">Učitavanje novosti...</div>
+         <div className="animate-pulse text-blue-600 font-semibold text-xl">Učitavanje sadržaja...</div>
       </div>
     );
   }
@@ -68,11 +65,11 @@ export default function Blog() {
         <RevealSection>
             <div className="text-center mb-16">
                 <h1 className="text-4xl font-extrabold text-gray-900 sm:text-5xl">
-                    Naš Blog
+                    Novosti i Projekti
                 </h1>
                 <div className="h-1 w-24 bg-blue-600 mx-auto rounded my-4"></div>
                 <p className="mt-4 text-xl text-gray-600">
-                    Aktuelnosti, podcast epizode i vijesti iz Fondacije
+                    Sve aktuelnosti, realizovani projekti i podcast epizode na jednom mjestu
                 </p>
             </div>
         </RevealSection>
@@ -81,14 +78,25 @@ export default function Blog() {
         <RevealSection>
             <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {posts.map((post) => {
-                // Određujemo stil na osnovu tipa posta
-                const isPodcast = post.type === 'podcast';
-                const badgeColor = isPodcast ? 'bg-purple-100 text-purple-700' : 'bg-blue-50 text-blue-700';
-                const badgeIcon = isPodcast ? <FaMicrophone className="mr-1 text-xs" /> : <FaNewspaper className="mr-1 text-xs" />;
-                const label = isPodcast ? 'PODCAST' : 'NOVOST';
-                
-                // PRIPREMA ČISTOG TEKSTA
                 const cleanContent = stripHtml(post.content || "");
+                
+                // --- LOGIKA ZA BOJE I IKONICE ---
+                let badgeClass = 'bg-blue-50 text-blue-700';
+                let hoverTextClass = 'group-hover:text-blue-600'; // Default Plava (Novost)
+                let icon = <FaNewspaper className="mr-1 text-xs" />;
+                let label = 'NOVOST';
+
+                if (post.type === 'podcast') {
+                    badgeClass = 'bg-purple-100 text-purple-700';
+                    hoverTextClass = 'group-hover:text-purple-600';
+                    icon = <FaMicrophone className="mr-1 text-xs" />;
+                    label = 'PODCAST';
+                } else if (post.type === 'project') {
+                    badgeClass = 'bg-green-100 text-green-700';
+                    hoverTextClass = 'group-hover:text-green-600';
+                    icon = <FaProjectDiagram className="mr-1 text-xs" />;
+                    label = 'PROJEKAT';
+                }
 
                 return (
                     <div key={post.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 flex flex-col border border-gray-100 h-full group">
@@ -117,29 +125,29 @@ export default function Blog() {
                                 {new Date(post.created_at).toLocaleDateString("bs-BA")}
                             </div>
                             
-                            {/* Oznaka tipa (Podcast ili Novost) */}
-                            <span className={`${badgeColor} text-[10px] px-3 py-1 rounded-full font-bold flex items-center shadow-sm`}>
-                                {badgeIcon} {label}
+                            {/* BEDŽ (Dynamic Color) */}
+                            <span className={`${badgeClass} text-[10px] px-3 py-1 rounded-full font-bold flex items-center shadow-sm uppercase`}>
+                                {icon} {label}
                             </span>
                         </div>
                         
-                        <Link href={`/blog/${post.slug || post.id}`} className="block group-hover:text-blue-600 transition-colors">
-                            <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2 leading-tight">
+                        {/* NASLOV (Dynamic Hover Color) */}
+                        <Link href={`/blog/${post.slug || post.id}`} className="block">
+                            <h3 className={`text-xl font-bold text-gray-900 mb-3 line-clamp-2 leading-tight ${hoverTextClass} transition-colors duration-300`}>
                                 {post.title}
                             </h3>
                         </Link>
                         
-                        {/* OVDJE JE IZMJENA: Prikazujemo očišćen tekst */}
                         <p className="text-gray-600 mb-4 line-clamp-3 flex-grow text-sm leading-relaxed">
                             {cleanContent}
                         </p>
 
-                        {/* Link Dugme */}
+                        {/* DUGME (Dynamic Hover Color) */}
                         <Link 
-                            href={`/blog/${post.slug || post.id}`} 
-                            className="text-blue-600 hover:text-blue-800 font-bold inline-flex items-center mt-auto w-max py-2"
+                            href={`/blog/${ post.id}`} 
+                            className={`text-gray-500 ${hoverTextClass} font-bold inline-flex items-center mt-auto w-max py-2 transition-colors duration-300`}
                         >
-                            Pročitaj više 
+                            {post.type === 'project' ? 'Pogledaj projekat' : post.type === 'podcast' ? 'Slušaj epizodu' : 'Pročitaj više'}
                             <svg className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                             </svg>
@@ -153,7 +161,7 @@ export default function Blog() {
 
         {posts.length === 0 && (
           <div className="text-center py-20 bg-white rounded-lg shadow mt-10">
-             <p className="text-gray-500 text-lg">Trenutno nema novosti.</p>
+             <p className="text-gray-500 text-lg">Trenutno nema objava.</p>
           </div>
         )}
       </div>

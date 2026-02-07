@@ -23,7 +23,7 @@ interface Post {
   image_url?: string | null;
   gallery_urls?: string[] | null;
   slug: string;
-  type: string;
+  type: string; // 'news', 'podcast', 'project'
   video_duration?: string | null;
   guest_name?: string | null;
   youtube_link?: string | null;
@@ -147,13 +147,34 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
   
   if (!post) return (
     <div className="min-h-[60vh] flex flex-col items-center justify-center px-4 text-center">
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">Post nije pronađen</h1>
+        <h1 className="text-3xl font-bold text-gray-800 mb-2">Sadržaj nije pronađen</h1>
         <p className="text-gray-500 mb-6">Moguće je da je stranica premještena ili obrisana.</p>
         <Link href="/blog" className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
-            Nazad na sve novosti
+            Nazad na početnu
         </Link>
     </div>
   );
+
+  // --- DINAMIČKO ODREĐIVANJE LABELA I BOJA ---
+  let labelText = "Novost";
+  let badgeColorDesktop = "bg-blue-600 text-white";
+  let badgeColorMobile = "bg-blue-100 text-blue-700";
+  let backLinkText = "Nazad na novosti";
+  let backLinkUrl = "/blog";
+
+  if (post.type === 'podcast') {
+      labelText = "Podcast";
+      badgeColorDesktop = "bg-purple-600 text-white";
+      badgeColorMobile = "bg-purple-100 text-purple-700";
+      backLinkText = "Nazad na podcast";
+      backLinkUrl = "/podcast";
+  } else if (post.type === 'project') {
+      labelText = "Projekat";
+      badgeColorDesktop = "bg-green-600 text-white"; // Zelena za projekte
+      badgeColorMobile = "bg-green-100 text-green-700";
+      backLinkText = "Nazad na projekte";
+      backLinkUrl = "/projekti"; // Ili /projects zavisi kako ti je rutiranje, ako je sve na blog, stavi /blog
+  }
 
   return (
     <div className="bg-white min-h-screen pb-20">
@@ -174,14 +195,14 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
             
             {/* Tekst preko slike (samo desktop) */}
             <div className="absolute bottom-0 left-0 w-full p-6 md:p-12 text-white hidden md:block">
-                <Link href="/blog" className="inline-flex items-center text-white/80 hover:text-white mb-6 text-sm transition font-medium">
-                    <FaArrowLeft className="mr-2" /> Nazad na novosti
+                <Link href={backLinkUrl} className="inline-flex items-center text-white/80 hover:text-white mb-6 text-sm transition font-medium">
+                    <FaArrowLeft className="mr-2" /> {backLinkText}
                 </Link>
 
                 <div className="flex flex-wrap items-center gap-4 mb-4">
-                    <span className={`px-3 py-1 rounded text-xs font-bold uppercase tracking-wider shadow-sm
-                        ${post.type === 'podcast' ? 'bg-purple-600 text-white' : 'bg-blue-600 text-white'}`}>
-                        {post.type === 'podcast' ? 'Podcast' : 'Novost'}
+                    {/* DESKTOP BADGE */}
+                    <span className={`px-3 py-1 rounded text-xs font-bold uppercase tracking-wider shadow-sm ${badgeColorDesktop}`}>
+                        {labelText}
                     </span>
                     <span className="flex items-center gap-2 text-sm text-gray-200 font-medium">
                         <FaCalendar /> {new Date(post.created_at).toLocaleDateString("bs-BA")}
@@ -198,13 +219,13 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
          
          {/* Mobilni Naslov i Info */}
          <div className="block md:hidden mb-8">
-            <Link href="/blog" className="text-blue-600 hover:underline mb-4 inline-flex items-center font-medium text-sm">
-               <FaArrowLeft className="mr-2" /> Nazad
+            <Link href={backLinkUrl} className="text-blue-600 hover:underline mb-4 inline-flex items-center font-medium text-sm">
+               <FaArrowLeft className="mr-2" /> {backLinkText}
             </Link>
             <div className="flex flex-wrap gap-2 mb-3">
-                 <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider
-                        ${post.type === 'podcast' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}`}>
-                        {post.type === 'podcast' ? 'Podcast' : 'Novost'}
+                 {/* MOBILE BADGE */}
+                 <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${badgeColorMobile}`}>
+                        {labelText}
                  </span>
                  <span className="flex items-center gap-2 text-xs text-gray-500 font-medium">
                         <FaCalendar /> {new Date(post.created_at).toLocaleDateString("bs-BA")}
@@ -232,14 +253,13 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
              </div>
          </div>
          
-         {/* --- TEKST (SADRŽAJ) SA NAPREDNIM STILOVIMA I FIXOM ZA RAZMAKE --- */}
+         {/* --- TEKST (SADRŽAJ) --- */}
          <div 
            className="prose prose-lg max-w-none w-full text-gray-700 mb-12 
            
            prose-headings:font-bold prose-headings:text-gray-900 
            prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl
            
-           /* FIX ZA RAZMAKE: */
            prose-p:my-0 prose-p:leading-relaxed [&>p]:min-h-[1.5rem]
 
            prose-ul:list-disc prose-ul:ml-6 prose-ul:mb-4
@@ -317,7 +337,7 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
             </svg>
           </button>
 
-          {/* Lijeva strelica - sada vidljiva i na mobitelu */}
+          {/* Lijeva strelica */}
           <button 
             onClick={prevImage}
             className="absolute left-2 md:left-4 text-white/70 hover:text-white p-2 md:p-3 z-50 bg-white/10 md:bg-transparent rounded-full transition"
@@ -345,7 +365,7 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
             </div>
           </div>
 
-          {/* Desna strelica - sada vidljiva i na mobitelu */}
+          {/* Desna strelica */}
           <button 
             onClick={nextImage}
             className="absolute right-2 md:right-4 text-white/70 hover:text-white p-2 md:p-3 z-50 bg-white/10 md:bg-transparent rounded-full transition"
