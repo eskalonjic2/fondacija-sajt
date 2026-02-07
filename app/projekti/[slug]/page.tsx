@@ -4,7 +4,14 @@ import { useEffect, useState, use } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Image from "next/image";
 import Link from "next/link";
-import { FaArrowLeft, FaCalendar } from "react-icons/fa";
+import { 
+  FaArrowLeft, 
+  FaCalendar,
+  FaFacebook, 
+  FaTwitter, 
+  FaWhatsapp, 
+  FaLinkedin 
+} from "react-icons/fa";
 
 interface Post {
   id: number;
@@ -24,6 +31,12 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
   const [post, setPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState(true);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+
+  // Za swipe funkcionalnost
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+
+  const currentUrl = typeof window !== 'undefined' ? window.location.href : '';
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -63,8 +76,8 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
     document.body.style.overflow = 'auto'; 
   };
 
-  const nextImage = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const nextImage = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
     if (post?.gallery_urls && lightboxIndex !== null) {
       setLightboxIndex((prev) => 
         prev === post.gallery_urls!.length - 1 ? 0 : prev! + 1
@@ -72,12 +85,39 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
     }
   };
 
-  const prevImage = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const prevImage = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
     if (post?.gallery_urls && lightboxIndex !== null) {
       setLightboxIndex((prev) => 
         prev === 0 ? post.gallery_urls!.length - 1 : prev! - 1
       );
+    }
+  };
+
+  // --- SWIPE LOGIKA ZA MOBITEL ---
+  const minSwipeDistance = 50; 
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null); 
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe) {
+      nextImage();
+    }
+    if (isRightSwipe) {
+      prevImage();
     }
   };
 
@@ -113,26 +153,30 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
   return (
     <div className="bg-white min-h-screen pb-20">
       
-      {/* HEADER SLIKA - DIZAJN KAO NA BLOGU */}
+      {/* HEADER SLIKA */}
       {post.image_url ? (
-        <div className="container mx-auto px-4 mt-6">
-            <div className="relative w-full h-[500px] md:h-[650px] rounded-3xl overflow-hidden shadow-lg">
+        <div className="container mx-auto px-0 md:px-4 mt-0 md:mt-6">
+            <div className="relative w-full h-[500px] md:h-[650px] md:rounded-3xl overflow-hidden shadow-none md:shadow-lg bg-black">
             <Image 
                 src={post.image_url} 
                 alt={post.title} 
                 fill 
-                className="object-cover"
+                // Mobilni: contain (cijela slika), Desktop: cover (dizajn)
+                className="object-contain md:object-cover"
                 priority
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"></div>
+            {/* Overlay samo za desktop */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent hidden md:block"></div>
             
-            <div className="absolute bottom-0 left-0 w-full p-6 md:p-12 text-white">
+            {/* Tekst unutar slike samo za desktop */}
+            <div className="absolute bottom-0 left-0 w-full p-6 md:p-12 text-white hidden md:block">
                 <Link href="/projekti" className="inline-flex items-center text-white/80 hover:text-white mb-6 text-sm transition font-medium">
                     <FaArrowLeft className="mr-2" /> Nazad na projekte
                 </Link>
 
                 <div className="flex flex-wrap items-center gap-4 mb-4">
-                    <span className="bg-blue-600 text-white px-3 py-1 rounded text-xs font-bold uppercase tracking-wider shadow-sm">
+                    {/* ZELENI OKVIR */}
+                    <span className="bg-green-600 text-white px-3 py-1 rounded text-xs font-bold uppercase tracking-wider shadow-sm">
                         Projekat
                     </span>
                     <span className="flex items-center gap-2 text-sm text-gray-200 font-medium">
@@ -145,7 +189,7 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
             </div>
         </div>
       ) : (
-        // Fallback ako nema slike (Zadržan čisti stil)
+        // Fallback ako nema slike
         <div className="container mx-auto px-6 max-w-4xl pt-16 pb-6">
              <Link href="/projekti" className="text-blue-600 hover:underline mb-6 inline-flex items-center font-medium">
                 <FaArrowLeft className="mr-2" /> Nazad
@@ -161,7 +205,43 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
       )}
 
       {/* GLAVNI SADRŽAJ */}
-      <div className="container mx-auto px-6 mt-12 max-w-4xl">
+      <div className="container mx-auto px-6 mt-8 md:mt-12 max-w-4xl">
+         
+         {/* Mobilni Naslov i Info (vidljivo samo na mobitelu) */}
+         <div className="block md:hidden mb-8">
+            <Link href="/projekti" className="text-blue-600 hover:underline mb-4 inline-flex items-center font-medium text-sm">
+               <FaArrowLeft className="mr-2" /> Nazad
+            </Link>
+            <div className="flex flex-wrap gap-2 mb-3">
+                 {/* ZELENI OKVIR MOBILNI */}
+                 <span className="bg-green-100 text-green-700 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider">
+                        Projekat
+                 </span>
+                 <span className="flex items-center gap-2 text-xs text-gray-500 font-medium">
+                        <FaCalendar /> {new Date(post.created_at).toLocaleDateString("bs-BA")}
+                 </span>
+            </div>
+            <h1 className="text-3xl font-bold text-gray-900 leading-tight">{post.title}</h1>
+         </div>
+
+         {/* DUGMIĆI ZA DIJELJENJE (SOCIAL SHARE) */}
+         <div className="flex items-center gap-4 mb-8 border-b border-gray-100 pb-8">
+             <span className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Podijeli:</span>
+             <div className="flex gap-3">
+                 <a href={`https://www.facebook.com/sharer/sharer.php?u=${currentUrl}`} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center hover:bg-blue-700 transition" title="Facebook">
+                    <FaFacebook />
+                 </a>
+                 <a href={`https://twitter.com/intent/tweet?url=${currentUrl}&text=${post.title}`} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center hover:bg-gray-800 transition" title="X (Twitter)">
+                    <FaTwitter />
+                 </a>
+                 <a href={`https://wa.me/?text=${post.title} - ${currentUrl}`} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-green-500 text-white flex items-center justify-center hover:bg-green-600 transition" title="WhatsApp">
+                    <FaWhatsapp />
+                 </a>
+                 <a href={`https://www.linkedin.com/shareArticle?mini=true&url=${currentUrl}`} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-blue-800 text-white flex items-center justify-center hover:bg-blue-900 transition" title="LinkedIn">
+                    <FaLinkedin />
+                 </a>
+             </div>
+         </div>
          
          {/* Tekst */}
          <div className="prose prose-lg max-w-none text-gray-700 leading-relaxed whitespace-pre-wrap mb-12 prose-a:text-blue-600 hover:prose-a:text-blue-800">
@@ -201,6 +281,10 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
         <div 
             className="fixed inset-0 z-[9999] bg-black/95 flex items-center justify-center backdrop-blur-md animate-in fade-in duration-200"
             onClick={closeLightbox} 
+            // Swipe handlers
+            onTouchStart={onTouchStart}
+            onTouchMove={onTouchMove}
+            onTouchEnd={onTouchEnd}
         >
           <button 
             onClick={closeLightbox}
@@ -211,16 +295,17 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
             </svg>
           </button>
 
+          {/* LIJEVA STRELICA - VIDLJIVA I NA MOBITELU */}
           <button 
             onClick={prevImage}
-            className="absolute left-4 text-white/70 hover:text-white p-3 z-50 hover:bg-white/10 rounded-full transition hidden md:block"
+            className="absolute left-2 md:left-4 text-white/70 hover:text-white p-2 md:p-3 z-50 bg-white/10 md:bg-transparent rounded-full transition"
           >
-             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-10 h-10">
+             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-8 h-8 md:w-10 md:h-10">
                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
              </svg>
           </button>
 
-          <div className="relative w-full h-full p-4 md:p-10 flex items-center justify-center pointer-events-none">
+          <div className="relative w-full h-full p-2 md:p-10 flex items-center justify-center pointer-events-none">
             <div className="relative pointer-events-auto max-w-full max-h-full">
                 <Image 
                     src={post.gallery_urls[lightboxIndex]} 
@@ -238,11 +323,12 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
             </div>
           </div>
 
+          {/* DESNA STRELICA - VIDLJIVA I NA MOBITELU */}
           <button 
             onClick={nextImage}
-            className="absolute right-4 text-white/70 hover:text-white p-3 z-50 hover:bg-white/10 rounded-full transition hidden md:block"
+            className="absolute right-2 md:right-4 text-white/70 hover:text-white p-2 md:p-3 z-50 bg-white/10 md:bg-transparent rounded-full transition"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-10 h-10">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-8 h-8 md:w-10 md:h-10">
               <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
             </svg>
           </button>

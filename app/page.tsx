@@ -1,29 +1,70 @@
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
-import { FaArrowRight, FaHandHoldingHeart, FaRegNewspaper, FaUsers, FaHandshake } from "react-icons/fa";
+import { FaArrowRight, FaHandHoldingHeart, FaRegNewspaper, FaUsers, FaHandshake, FaPlay } from "react-icons/fa";
 import StatsSection from "./components/StatsSection"; 
 import RevealSection from "./components/RevealSection"; 
-import Image from "next/image"; // Preporučujem korištenje Next Image komponente umjesto img taga
+import Image from "next/image"; 
 
-// --- IZMJENA: FILTRIRANJE SAMO NOVOSTI ---
+// --- 1. FETCH NOVOSTI ---
 async function getLatestNews() {
   const { data: posts, error } = await supabase
     .from("posts")
     .select("*")
-    .eq("type", "news") // <--- OVO JE KLJUČNO: Filtriramo da uzme samo novosti, ne projekte
+    .eq("type", "news") 
     .order("created_at", { ascending: false })
     .limit(3);
 
   if (error) {
-    console.error("Greška pri učitavanju novosti:", error);
+    console.error("Greška novosti:", error);
     return [];
   }
-  
   return posts || [];
+}
+
+// --- 2. FETCH PODCAST (ZADNJA EPIZODA) ---
+// POPRAVLJENO: Sada traži u tabeli 'posts' gdje je type 'podcast'
+async function getLatestPodcast() {
+  const { data, error } = await supabase
+    .from("posts") // <--- PROMJENA: Tražimo u glavnoj tabeli
+    .select("*")
+    .eq("type", "podcast") // <--- PROMJENA: Filtriramo samo podcaste
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .single();
+
+  if (error) {
+    // Ovo će se ispisati u tvom VS Code terminalu (ne u browseru)
+    console.log("DEBUG - Greška pri učitavanju podcasta:", error.message);
+    console.log("Kod greške:", error.code);
+    return null; 
+  }
+  return data;
+}
+
+// --- 3. FETCH ZADNJEG PROJEKTA ---
+async function getLatestProject() {
+  const { data, error } = await supabase
+    .from("posts")
+    .select("*")
+    .eq("type", "project") 
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .single();
+
+  if (error) {
+    console.error("Greška projekat:", error);
+    return null;
+  }
+  return data;
 }
 
 export default async function Home() {
   const novosti = await getLatestNews();
+  const podcast = await getLatestPodcast();
+  const latestProject = await getLatestProject();
+
+  // Ovdje provjeri u terminalu da li je podcast učitan
+  console.log("Učitani podcast podaci:", podcast); 
 
   return (
     <main className="min-h-screen bg-white text-gray-800 font-sans">
@@ -53,28 +94,24 @@ export default async function Home() {
         `}} />
 
         <div className="absolute inset-0 z-0">
-          {/* OVDJE SU TVOJE SLIKE IZ PUBLIC/HERO FOLDERA */}
           <div className="slide-bg delay-1" style={{ backgroundImage: "url('/hero/hero1.webp')" }}></div>
           <div className="slide-bg delay-2" style={{ backgroundImage: "url('/hero/hero2.webp')" }}></div>
           <div className="slide-bg delay-3" style={{ backgroundImage: "url('/hero/hero4.webp')" }}></div>
         </div>
-<div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/60 to-transparent z-10"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/60 to-transparent z-10"></div>
 
         <div className="relative z-20 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full">
-            
-            {/* IZMJENA: mt-48 gura sadržaj skroz dole na telefonu. md:mt-0 ga vraća u sredinu na PC-u. */}
             <div className="max-w-2xl mt-48 md:mt-0"> 
-              
              <h1 className="flex flex-col text-3xl md:text-6xl font-black tracking-tight leading-tight md:leading-none mb-4 md:mb-6 drop-shadow-lg">
-    <span className="text-white">FONDACIJA</span>
-    <span className="text-blue-500">DULJEVIĆ</span>
-</h1>
+                <span className="text-white">FONDACIJA</span>
+                <span className="text-blue-500">DULJEVIĆ</span>
+             </h1>
               
-        <p className="text-sm md:text-xl text-gray-200 mb-6 md:mb-8 leading-relaxed font-light border-l-4 border-blue-500 pl-4 md:pl-6 max-w-lg">
-    Pružamo ruku onima kojima je najpotrebnija.<br />
-    Kroz stipendije, humanitarnu pomoć i edukaciju gradimo društvo jednakih šansi.<br />
-    Vaša podrška je temelj nečije bolje budućnosti.
-</p> 
+             <p className="text-sm md:text-xl text-gray-200 mb-6 md:mb-8 leading-relaxed font-light border-l-4 border-blue-500 pl-4 md:pl-6 max-w-lg">
+                Pružamo ruku onima kojima je najpotrebnija.<br />
+                Kroz stipendije, humanitarnu pomoć i edukaciju gradimo društvo jednakih šansi.<br />
+                Vaša podrška je temelj nečije bolje budućnosti.
+            </p> 
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link
                   href="/onama"
@@ -91,7 +128,8 @@ export default async function Home() {
       <RevealSection>
         <StatsSection />
       </RevealSection>
-{/* 3. NAŠ TIM */}
+
+    {/* 3. NAŠ TIM */}
       <RevealSection>
         <section className="py-24 bg-white overflow-hidden">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
@@ -108,10 +146,6 @@ export default async function Home() {
                 <p className="text-lg text-slate-600 mb-6 leading-relaxed">
                   Naš tim čine posvećeni profesionalci, stručnjaci iz raznih oblasti i neumorni volonteri ujedinjeni istom vizijom.
                 </p>
-                <p className="text-lg text-slate-600 mb-8 leading-relaxed">
-                  Vjerujemo da samo transparentnim radom i ličnim primjerom možemo inspirisati druge da nam se pridruže u stvaranju boljeg društva.
-                </p>
-                
                 <Link 
                   href="/tim" 
                   className="inline-flex items-center justify-center px-6 py-3 text-base font-bold text-white bg-blue-900 rounded-lg shadow-md hover:bg-blue-800 transition duration-300 group"
@@ -120,27 +154,18 @@ export default async function Home() {
                 </Link>
               </div>
 
-            {/* DESNA STRANA: SLIKE (Hero 8 i Hero 6) */}
+            {/* DESNA STRANA: SLIKE */}
               <div className="relative">
-                {/* Dekorativni krug u pozadini */}
                 <div className="absolute -top-4 -right-4 w-72 h-72 bg-[#be1e2d]/10 rounded-full blur-3xl"></div>
-                
-                {/* Grid sa 2 slike - items-start ih poravnava na vrhu */}
                 <div className="grid grid-cols-2 gap-6 relative z-10 items-start">
-                  
-                  {/* PRVA SLIKA - hero8.jpg */}
-                  {/* IZMJENA: Uklonjeno 'mt-12' da se slika podigne i izravna sa drugom */}
                   <div className="relative bg-slate-100 rounded-2xl h-64 lg:h-80 w-full overflow-hidden shadow-lg border border-slate-200 transform transition-transform duration-500 hover:scale-[1.02]">
                       <Image 
                         src="/hero8.jpg" 
                         alt="Hako Duljević" 
                         fill 
-                        // Ostalo je tvoje podešavanje fokusa
                         className="object-cover object-[53%_center]" 
                       />
                   </div>
-
-                  {/* DRUGA SLIKA - hero6.jpeg */}
                   <div className="relative bg-slate-100 rounded-2xl h-64 lg:h-80 w-full overflow-hidden shadow-lg border border-slate-200 transform transition-transform duration-500 hover:scale-[1.02]">
                       <Image 
                         src="/hero6.jpeg" 
@@ -149,7 +174,6 @@ export default async function Home() {
                         className="object-cover" 
                       />
                   </div>
-
                 </div>
               </div>
 
@@ -173,37 +197,147 @@ export default async function Home() {
                 <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white">Postanite naš partner</h2>
                 <p className="text-gray-300 text-lg leading-relaxed mb-6">
                   Ako ste preduzetnik ili organizacija, pozivamo vas da postanete naš partner u ostvarivanju zajedničkih ciljeva. 
-                  Kroz partnerske inicijative možemo ostvariti veći uticaj na društvo.
                 </p>
-                <p className="text-gray-300 text-lg leading-relaxed mb-8">
-                  Vaša saradnja omogućava zajednički rad na projektima koji ne samo da obogaćuju zajednicu, već podstiču 
-                  ekonomski rast i stvaranje novih prilika.
-                </p>
-                
                 <Link href="/kontakt" className="inline-block bg-white text-slate-900 font-bold py-4 px-8 rounded-lg hover:bg-blue-50 transition transform hover:-translate-y-1 shadow-lg">
                   Pridruži se timu
                 </Link>
               </div>
 
               <div className="bg-slate-800 p-8 rounded-3xl border border-slate-700 text-center shadow-2xl">
-                 <FaUsers className="text-6xl text-blue-500 mx-auto mb-4" />
-                 <h3 className="text-xl font-bold text-white mb-2">Zajedno smo jači</h3>
-                 <p className="text-gray-400">Pridružite se mreži od preko 20 kompanija i organizacija koje već podržavaju naš rad.</p>
+                  <FaUsers className="text-6xl text-blue-500 mx-auto mb-4" />
+                  <h3 className="text-xl font-bold text-white mb-2">Zajedno smo jači</h3>
+                  <p className="text-gray-400">Pridružite se mreži od preko 20 kompanija i organizacija.</p>
               </div>
             </div>
           </div>
         </section>
       </RevealSection>
+{/* --- NOVA EPIZODA SEKCIJA (FINALNA I USKLAĐENA S BAZOM) --- */}
+      {podcast && (
+        <RevealSection>
+          <section className="py-24 bg-white">
+            <div className="mx-auto max-w-7xl px-6 lg:px-8">
+              
+              {/* ZAGLAVLJE: NASLOV I LINK */}
+              <div className="flex justify-between items-end mb-12">
+                <div className="flex items-center gap-4">
+                   <div className="w-2 h-10 bg-blue-600 rounded-full"></div>
+                   <h2 className="text-4xl font-bold text-slate-900">Nova epizoda</h2>
+                </div>
+                
+                <Link 
+                  href="/podcast" 
+                  className="text-blue-600 font-bold hover:text-blue-800 flex items-center gap-2 transition-colors"
+                >
+                  Sve epizode <FaArrowRight />
+                </Link>
+              </div>
 
+              {/* PODCAST KARTICA */}
+              <div className="group relative bg-slate-900 rounded-[2.5rem] overflow-hidden shadow-2xl transition-all hover:shadow-blue-900/20">
+                 
+                 {/* Gradient Overlay */}
+                 <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/90 to-transparent z-10 pointer-events-none"></div>
+                 
+                 <div className="grid lg:grid-cols-2 gap-0 relative z-20">
+                    
+                    {/* LIJEVA STRANA: TEKST */}
+                    <div className="p-8 md:p-12 flex flex-col justify-center order-2 lg:order-1">
+                        
+                        {/* Datum */}
+                        <span className="text-blue-400 font-bold tracking-widest text-sm uppercase mb-4">
+                          {new Date(podcast.created_at).toLocaleDateString('hr-BA')}
+                        </span>
+                        
+                        {/* Naslov */}
+                        <h3 className="text-3xl md:text-5xl font-bold text-white mb-6 leading-tight group-hover:text-blue-400 transition-colors">
+                          {podcast.title}
+                        </h3>
+                        
+                        {/* Opis */}
+                        <p className="text-slate-300 text-lg mb-8 leading-relaxed line-clamp-3">
+                          {podcast.content || "Pogledajte najnoviju epizodu našeg podcasta..."}
+                        </p>
+                        
+                        {/* --- OVDJE SU BILE GREŠKE --- */}
+                        <div className="flex flex-wrap gap-4 mb-8">
+                           {/* Provjeravamo guest_name jer se tako zove u bazi */}
+                           {podcast.guest_name && (
+                               <div className="bg-[#111827] px-5 py-3 rounded-2xl border border-gray-800 min-w-[120px]">
+                                   <span className="text-blue-500 text-[10px] font-bold block uppercase tracking-wider mb-1">
+                                     Gost
+                                   </span>
+                                   <span className="text-white font-bold text-lg">
+                                     {podcast.guest_name}
+                                   </span>
+                               </div>
+                           )}
+                           
+                           {/* Provjeravamo video_duration jer se tako zove u bazi */}
+                           {podcast.video_duration && (
+                                <div className="bg-[#111827] px-5 py-3 rounded-2xl border border-gray-800 min-w-[120px]">
+                                   <span className="text-blue-500 text-[10px] font-bold block uppercase tracking-wider mb-1">
+                                     Trajanje
+                                   </span>
+                                   <span className="text-white font-bold text-lg">
+                                     {podcast.video_duration} min
+                                   </span>
+                                </div>
+                           )}
+                        </div>
+                        {/* --------------------------- */}
+
+                        {/* Dugme Gledaj Odmah - ispravljen link na youtube_link */}
+                        <div className="flex items-center gap-4">
+                            <a 
+                              href={podcast.youtube_link || "#"} 
+                              target="_blank" 
+                              className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-600 text-white hover:bg-blue-500 transition-all hover:scale-110 shadow-lg shadow-blue-600/30"
+                            >
+                                <FaPlay className="ml-1 text-2xl" />
+                            </a>
+                            <span className="text-white font-bold text-lg">Gledaj odmah</span>
+                        </div>
+                    </div>
+
+                    {/* DESNA STRANA: SLIKA */}
+                    <div className="relative w-full h-64 sm:h-80 lg:h-auto lg:min-h-full order-1 lg:order-2 bg-slate-800">
+                        {podcast.image_url ? (
+                            <Image 
+                                src={podcast.image_url} 
+                                alt={podcast.title}
+                                fill
+                                className="object-cover object-top lg:object-center transition-transform duration-700 group-hover:scale-105"
+                            />
+                        ) : (
+                            <div className="w-full h-full flex flex-col items-center justify-center text-slate-500 border-b lg:border-b-0 lg:border-l border-slate-700">
+                                <span className="text-sm font-medium">Nema slike</span>
+                            </div>
+                        )}
+                    </div>
+
+                 </div>
+              </div>
+
+            </div>
+          </section>
+        </RevealSection>
+      )}
       {/* 5. POSLEDNJE 3 NOVOSTI IZ BAZE */}
       <RevealSection>
-        <section className="py-24 bg-gray-50">
+        <section className="py-16 bg-gray-50">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
+            
             <div className="flex justify-between items-end mb-12">
-                <div>
-                  <h2 className="text-3xl font-bold text-gray-900">Poslednje Novosti</h2>
-                  <p className="text-gray-500 mt-2">Pratite naše aktivnosti i budite u toku.</p>
+                <div className="flex items-start gap-4">
+                  {/* PLAVA VERTKALNA CRTICA */}
+                  <div className="w-1.5 h-12 bg-blue-600 rounded-full mt-1"></div>
+                  <div>
+                    <h2 className="text-3xl font-bold text-gray-900">Poslednje Novosti</h2>
+                    <p className="text-gray-500 mt-2">Pratite naše aktivnosti i budite u toku.</p>
+                  </div>
                 </div>
+                
                 <Link href="/blog" className="hidden md:flex text-blue-600 font-bold hover:text-blue-800 items-center gap-2">
                   Sve novosti <FaArrowRight />
                 </Link>
@@ -213,10 +347,8 @@ export default async function Home() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {novosti.map((post: any) => (
                   <div key={post.id} className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition duration-300 border border-gray-100 group flex flex-col h-full">
-                    {/* Slika Novosti */}
                     <div className="h-48 bg-gray-200 relative overflow-hidden">
                         {post.image_url ? (
-                            // Koristimo Next Image za bolju optimizaciju, ali može i img ako želiš
                            <Image 
                             src={post.image_url} 
                             alt={post.title} 
@@ -244,11 +376,9 @@ export default async function Home() {
                         {post.title}
                       </h3>
                       <p className="text-gray-600 text-sm line-clamp-3 mb-4 flex-grow">
-                        {/* Ako nema content, prikaži prazan string, da ne pukne */}
                         {post.content ? post.content.substring(0, 100) + "..." : ""}
                       </p>
                       
-                      {/* LINK SADA VODI NA /blog/[slug] KAO ŠTO SMO PODESILI */}
                       <Link href={`/blog/${post.slug}`} className="text-sm font-bold text-[#be1e2d] hover:underline mt-auto">
                         Pročitaj više
                       </Link>
@@ -258,7 +388,7 @@ export default async function Home() {
               </div>
             ) : (
                 <div className="text-center py-10 text-gray-500">
-                  Trenutno nema novosti. Posjetite našu blog sekciju.
+                  Trenutno nema novosti.
                 </div>
             )}
 
@@ -270,6 +400,70 @@ export default async function Home() {
           </div>
         </section>
       </RevealSection>
+
+      {/* --- SEKCIJA PROJEKAT --- */}
+      {latestProject && (
+        <RevealSection>
+            <section className="py-20 bg-white border-t border-gray-100">
+                <div className="mx-auto max-w-7xl px-6 lg:px-8">
+                    
+                    <div className="flex justify-between items-center mb-10">
+                        <div className="flex items-center gap-4">
+                             {/* ZELENA VERTKALNA CRTICA */}
+                            <div className="w-1.5 h-10 bg-green-500 rounded-full"></div>
+                            <h2 className="text-3xl font-bold text-gray-900">Projekat</h2>
+                        </div>
+                        <Link href="/projekti" className="text-blue-600 font-bold hover:text-blue-800 flex items-center gap-2">
+                             Svi projekti <FaArrowRight />
+                        </Link>
+                    </div>
+
+                    <div className="group relative bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 hover:shadow-2xl transition-all duration-300">
+                        <div className="grid md:grid-cols-2 h-full">
+                            {/* Slika Projekta */}
+                            <div className="relative h-64 md:h-auto overflow-hidden">
+                                {latestProject.image_url ? (
+                                    <Image 
+                                        src={latestProject.image_url} 
+                                        alt={latestProject.title} 
+                                        fill 
+                                        className="object-cover transition duration-700 group-hover:scale-105"
+                                    />
+                                ) : (
+                                    <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                                        <FaHandshake className="text-6xl text-gray-300"/>
+                                    </div>
+                                )}
+                                <div className="absolute top-4 left-4 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                                    Aktuelno
+                                </div>
+                            </div>
+
+                            {/* Detalji Projekta */}
+                            <div className="p-8 md:p-12 flex flex-col justify-center bg-white">
+                                <div className="text-sm text-gray-500 mb-2 font-medium">
+                                    {new Date(latestProject.created_at).toLocaleDateString('hr-BA')}
+                                </div>
+                                <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 group-hover:text-blue-600 transition">
+                                    {latestProject.title}
+                                </h3>
+                                <p className="text-gray-600 mb-8 leading-relaxed line-clamp-3">
+                                    {latestProject.content || "Pogledajte detalje o našem najnovijem humanitarnom projektu..."}
+                                </p>
+                                
+                                <Link 
+                                    href={`/projekti/${latestProject.slug}`} 
+                                    className="inline-flex items-center text-white bg-[#be1e2d] hover:bg-red-700 font-bold py-3 px-6 rounded-lg transition-colors w-fit shadow-md"
+                                >
+                                    Saznaj više o akciji <FaArrowRight className="ml-2"/>
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </RevealSection>
+      )}
 
      {/* 6. DVA NAČINA ZA POMOĆ */}
       <RevealSection>
