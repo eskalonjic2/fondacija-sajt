@@ -5,6 +5,7 @@ import StatsSection from "./components/StatsSection";
 import RevealSection from "./components/RevealSection"; 
 import Image from "next/image"; 
 
+export const revalidate = 0;
 // --- 1. FETCH NOVOSTI ---
 async function getLatestNews() {
   const { data: posts, error } = await supabase
