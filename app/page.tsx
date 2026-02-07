@@ -95,9 +95,9 @@ export default async function Home() {
         `}} />
 
         <div className="absolute inset-0 z-0">
-          <div className="slide-bg delay-1" style={{ backgroundImage: "url('/hero/hero1.webp')" }}></div>
+          <div className="slide-bg delay-1" style={{ backgroundImage: "url('/hero/hero4.webp')" }}></div>
           <div className="slide-bg delay-2" style={{ backgroundImage: "url('/hero/hero2.webp')" }}></div>
-          <div className="slide-bg delay-3" style={{ backgroundImage: "url('/hero/hero4.webp')" }}></div>
+          <div className="slide-bg delay-3" style={{ backgroundImage: "url('/hero/hero1.webp')" }}></div>
         </div>
         <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/60 to-transparent z-10"></div>
 
