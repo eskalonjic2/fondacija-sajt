@@ -8,14 +8,11 @@ import { FaMicrophone, FaYoutube, FaNewspaper, FaProjectDiagram, FaCrop, FaTimes
 import Cropper from "react-easy-crop";
 import { Point, Area } from "react-easy-crop";
 
-// --- 1. IZMJENA: KORISTIMO NOVU BIBLIOTEKU ZA EDITOR ---
-import 'react-quill-new/dist/quill.snow.css'; // Promijenjen import za CSS
+import 'react-quill-new/dist/quill.snow.css'; 
 import dynamic from 'next/dynamic';
 
-// Uvozimo 'react-quill-new' umjesto starog 'react-quill'
 const ReactQuill = dynamic(() => import('react-quill-new'), { ssr: false });
 
-// Definišemo alate koji će biti dostupni u editoru
 const modules = {
   toolbar: [
     [{ 'header': [1, 2, 3, false] }], 
@@ -25,7 +22,6 @@ const modules = {
     ['clean'] 
   ],
 };
-// ------------------------------------------------
 
 interface Post {
   id: number;
@@ -49,7 +45,7 @@ export default function Admin() {
 
   // Osnovni podaci
   const [title, setTitle] = useState("");
-  const [content, setContent] = useState(""); // React Quill koristi ovo
+  const [content, setContent] = useState(""); 
   const [type, setType] = useState("news");
   
   // PODCAST SPECIFIČNI PODACI
@@ -141,7 +137,7 @@ export default function Admin() {
         setTempImage(reader.result as string);
         setIsCropping(true);
         setZoom(1);
-      });
+            });
       reader.readAsDataURL(file);
     }
   };
@@ -188,11 +184,23 @@ export default function Admin() {
     setExistingGalleryUrls(prev => prev.filter(url => url !== urlToRemove));
   };
 
+  // --- NOVO: FUNKCIJA ZA ČIŠĆENJE HTML-a ---
+  const cleanHtml = (html: string) => {
+    if (!html) return "";
+    let clean = html;
+    // 1. Zamijeni &nbsp; (non-breaking space) sa običnim razmakom
+    clean = clean.replace(/&nbsp;/g, ' ');
+    // 2. Ukloni sve style="..." atribute
+    clean = clean.replace(/style="[^"]*"/g, "");
+    return clean;
+  };
+  // ------------------------------------------
+
   // --- EDIT ---
   function handleEdit(post: Post) {
     setEditingId(post.id);
     setTitle(post.title);
-    setContent(post.content); // Quill automatski čita HTML
+    setContent(post.content); 
     setType(post.type || "news");
     
     setCoverPreview(post.image_url);
@@ -237,7 +245,6 @@ export default function Admin() {
   const handlePublish = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Ručna provjera jer Quill ne podržava 'required' atribut na isti način
     if (!content || content === '<p><br></p>') {
         alert("Molimo unesite tekst objave.");
         return;
@@ -271,9 +278,13 @@ export default function Admin() {
 
       const slug = title.toLowerCase().replace(/ /g, "-").replace(/[^\w-]+/g, "");
 
+      // --- NOVO: ČIŠĆENJE TEKSTA PRIJE SLANJA ---
+      const cleanContentText = cleanHtml(content); 
+      // ------------------------------------------
+
       const postData = {
         title,
-        content, // Ovo je sada HTML string iz editora
+        content: cleanContentText, // Šaljemo očišćen tekst
         type: type, 
         slug,
         image_url: finalCoverUrl,
@@ -360,7 +371,7 @@ export default function Admin() {
         <div className="flex justify-between items-center mb-8">
              <h1 className="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
              <button onClick={handleLogout} className="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-900 transition flex items-center gap-2">
-                <span>Odjavi se</span>
+               <span>Odjavi se</span>
              </button>
         </div>
         

@@ -1,4 +1,4 @@
-import { FaFacebook, FaLinkedin, FaInstagram } from "react-icons/fa";
+import { FaFacebook, FaLinkedin, FaInstagram, FaTiktok } from "react-icons/fa";
 import Image from "next/image";
 
 export default function Tim() {
@@ -59,6 +59,14 @@ Okupljamo znanje, iskustvo i energiju kako bismo ideje pretvarali u vidljive rez
                             <div className="flex justify-center space-x-5">
                                 <a href="https://www.facebook.com/share/1G9qWDbVdp/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-blue-600 text-2xl transition duration-300 hover:scale-110"><FaFacebook /></a>
                                <a href="https://www.instagram.com/hakoduljevic?igsh=dXNzdmhnejVzOW0y" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-pink-600 text-2xl transition duration-300 hover:scale-110"><FaInstagram /></a>
+                               <a 
+  href="https://www.tiktok.com/@hakoduljevic?_r=1&_t=ZS-93ksssRWULN" 
+  target="_blank" 
+  rel="noopener noreferrer" 
+  className="text-gray-400 hover:text-black text-2xl transition duration-300 hover:scale-110"
+>
+  <FaTiktok />
+</a>
                             </div>
                         </div>
                     </div>

@@ -6,7 +6,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { 
   FaCalendar, 
-  FaUser, 
   FaYoutube, 
   FaArrowLeft, 
   FaFacebook, 
@@ -170,10 +169,10 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
       backLinkUrl = "/podcast";
   } else if (post.type === 'project') {
       labelText = "Projekat";
-      badgeColorDesktop = "bg-green-600 text-white"; // Zelena za projekte
+      badgeColorDesktop = "bg-green-600 text-white"; 
       badgeColorMobile = "bg-green-100 text-green-700";
       backLinkText = "Nazad na projekte";
-      backLinkUrl = "/projekti"; // Ili /projects zavisi kako ti je rutiranje, ako je sve na blog, stavi /blog
+      backLinkUrl = "/projekti"; 
   }
 
   return (
@@ -190,7 +189,7 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
                 className="object-contain md:object-cover"
                 priority
             />
-            {/* Gradient samo na desktopu da se tekst bolje vidi */}
+            {/* Gradient samo na desktopu */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent hidden md:block"></div>
             
             {/* Tekst preko slike (samo desktop) */}
@@ -200,7 +199,6 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
                 </Link>
 
                 <div className="flex flex-wrap items-center gap-4 mb-4">
-                    {/* DESKTOP BADGE */}
                     <span className={`px-3 py-1 rounded text-xs font-bold uppercase tracking-wider shadow-sm ${badgeColorDesktop}`}>
                         {labelText}
                     </span>
@@ -208,7 +206,7 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
                         <FaCalendar /> {new Date(post.created_at).toLocaleDateString("bs-BA")}
                     </span>
                 </div>
-                <h1 className="text-5xl font-bold leading-tight drop-shadow-sm max-w-4xl">{post.title}</h1>
+                <h1 className="text-5xl font-bold leading-tight drop-shadow-sm max-w-4xl text-balance">{post.title}</h1>
             </div>
             </div>
         </div>
@@ -223,7 +221,6 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
                <FaArrowLeft className="mr-2" /> {backLinkText}
             </Link>
             <div className="flex flex-wrap gap-2 mb-3">
-                 {/* MOBILE BADGE */}
                  <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${badgeColorMobile}`}>
                         {labelText}
                  </span>
@@ -231,10 +228,10 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
                         <FaCalendar /> {new Date(post.created_at).toLocaleDateString("bs-BA")}
                  </span>
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 leading-tight">{post.title}</h1>
+            <h1 className="text-3xl font-bold text-gray-900 leading-tight text-balance">{post.title}</h1>
          </div>
 
-         {/* DUGMIĆI ZA DIJELJENJE (SOCIAL SHARE) */}
+         {/* SOCIAL SHARE */}
          <div className="flex items-center gap-4 mb-8 border-b border-gray-100 pb-8">
              <span className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Podijeli:</span>
              <div className="flex gap-3">
@@ -254,8 +251,16 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
          </div>
          
          {/* --- TEKST (SADRŽAJ) --- */}
+         {/* ISPRAVKA ZA PRIKAZ TEKSTA:
+            1. `break-words`: Ovo je ključno. Ako riječ ne stane, prebacuje CIJELU riječ u novi red. 
+               Neće je sjeći na pola osim ako je riječ duža od cijelog reda (npr. dugačak URL).
+            2. `hyphens-none`: Zabranjuje automatsko dodavanje crtica.
+            3. `text-left`: Poravnava tekst lijevo da se izbjegnu rupe u tekstu.
+         */}
          <div 
+           lang="bs"
            className="prose prose-lg max-w-none w-full text-gray-700 mb-12 
+           text-left break-words hyphens-none
            
            prose-headings:font-bold prose-headings:text-gray-900 
            prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl
@@ -266,14 +271,13 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
            prose-ol:list-decimal prose-ol:ml-6 prose-ol:mb-4
            prose-li:pl-1 prose-li:marker:text-blue-600
 
-           prose-a:text-blue-600 hover:prose-a:text-blue-800 
-           break-words overflow-hidden"
+           prose-a:text-blue-600 hover:prose-a:text-blue-800"
            
            dangerouslySetInnerHTML={{ __html: post.content }}
          />
          {/* ----------------------------------------------- */}
 
-         {/* PODCAST VIDEO SEKCIJA */}
+         {/* VIDEO I GALERIJA ... (ostatak koda je isti) */}
          {post.type === 'podcast' && post.youtube_link && (
              <div className="bg-gray-50 rounded-2xl p-6 md:p-8 mb-12 border border-gray-200 shadow-sm">
                  <h3 className="text-2xl font-bold mb-6 flex items-center gap-3 text-gray-900">
@@ -290,7 +294,6 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
              </div>
          )}
 
-         {/* GALERIJA SEKCIJA */}
          {post.gallery_urls && post.gallery_urls.length > 0 && (
            <div className="border-t pt-12">
              <h3 className="text-2xl font-bold mb-8 text-gray-900">Galerija slika</h3>
@@ -323,7 +326,6 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
         <div 
             className="fixed inset-0 z-[9999] bg-black/95 flex items-center justify-center backdrop-blur-md animate-in fade-in duration-200"
             onClick={closeLightbox} 
-            // Dodani handler za swipe
             onTouchStart={onTouchStart}
             onTouchMove={onTouchMove}
             onTouchEnd={onTouchEnd}
@@ -337,7 +339,6 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
             </svg>
           </button>
 
-          {/* Lijeva strelica */}
           <button 
             onClick={prevImage}
             className="absolute left-2 md:left-4 text-white/70 hover:text-white p-2 md:p-3 z-50 bg-white/10 md:bg-transparent rounded-full transition"
@@ -365,7 +366,6 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
             </div>
           </div>
 
-          {/* Desna strelica */}
           <button 
             onClick={nextImage}
             className="absolute right-2 md:right-4 text-white/70 hover:text-white p-2 md:p-3 z-50 bg-white/10 md:bg-transparent rounded-full transition"

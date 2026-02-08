@@ -68,7 +68,7 @@ export default async function Home() {
   return (
     <main className="min-h-screen bg-white text-gray-800 font-sans">
       
-    {/* 1. HERO SEKCIJA */}
+   {/* 1. HERO SEKCIJA */}
       <section className="relative h-[650px] md:h-[700px] lg:h-[850px] flex items-center overflow-hidden">
         
         <style dangerouslySetInnerHTML={{__html: `
@@ -83,7 +83,7 @@ export default async function Home() {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             background-size: cover;
-            background-position: center;
+            /* background-position se sada kontroliše kroz Tailwind klase dole */
             opacity: 0;
             animation: fadeZoom 15s infinite;
           }
@@ -93,16 +93,23 @@ export default async function Home() {
         `}} />
 
         <div className="absolute inset-0 z-0 bg-slate-900">
-          <div className="slide-bg delay-1" style={{ backgroundImage: "url('/hero/hero4.webp')" }}></div>
-          <div className="slide-bg delay-2" style={{ backgroundImage: "url('/hero/hero2.webp')" }}></div>
-          <div className="slide-bg delay-3" style={{ backgroundImage: "url('/hero/hero1.webp')" }}></div>
+          {/* PRVA SLIKA: bg-[75%_center] pomjera sliku UDESNO na mobilnom. 
+              Ako treba još desno, stavi 85% ili 90%. md:bg-center vraća na centar za PC. */}
+          <div className="slide-bg delay-1 bg-[55%_center] md:bg-center" style={{ backgroundImage: "url('/hero/hero4.webp')" }}></div>
+          
+          {/* DRUGA SLIKA: Isto pomjeranje udesno */}
+          <div className="slide-bg delay-2 bg-[60%_center] md:bg-center" style={{ backgroundImage: "url('/hero/hero2.webp')" }}></div>
+          
+          {/* TREĆA SLIKA: Nju sam ostavio centriranu, ali ako i nju trebaš desno, dodaj istu klasu */}
+          <div className="slide-bg delay-3 bg-center" style={{ backgroundImage: "url('/hero/hero1.webp')" }}></div>
         </div>
         
-        {/* Tamniji overlay za bolju čitljivost */}
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-900/90 via-slate-900/60 to-transparent z-10"></div>
+        {/* Overlay - gradijent odozdo prema gore da se tekst bolje vidi */}
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/50 to-transparent z-10"></div>
 
-        <div className="relative z-20 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full flex flex-col justify-center h-full">
-            <div className="max-w-3xl mt-0 md:mt-0"> 
+        {/* KONTEJNER: justify-end spušta sve na dno. pb-16/32 pravi razmak od donje ivice */}
+        <div className="relative z-20 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full flex flex-col justify-end h-full pb-16 md:pb-32">
+            <div className="max-w-3xl mt-0"> 
              <h1 className="flex flex-col text-4xl sm:text-5xl md:text-7xl font-black tracking-tight leading-[1.1] mb-6 drop-shadow-2xl">
                 <span className="text-white">FONDACIJA</span>
                 <span className="text-blue-500">DULJEVIĆ</span>
@@ -162,17 +169,18 @@ export default async function Home() {
                   {/* GRID SLIKA TIMA */}
                   <div className="grid grid-cols-2 gap-4 md:gap-6 lg:gap-8 relative z-10">
                       
-                      <div className="relative w-full h-48 sm:h-64 md:h-72 lg:h-[500px] bg-slate-200 rounded-2xl overflow-hidden shadow-lg border border-slate-200 group">
-                          <Image 
-                              src="/hero8.webp" 
-                              alt="Hako Duljević" 
-                              fill 
-                              className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
-                              sizes="(max-width: 768px) 50vw, (max-width: 1200px) 50vw, 33vw"
-                              priority={true}
-                          />
-                      </div>
-
+                     <div className="relative w-full h-48 sm:h-64 md:h-72 lg:h-[500px] bg-slate-200 rounded-2xl overflow-hidden shadow-lg border border-slate-200 group">
+  <Image 
+      src="/hero8.webp" 
+      alt="Hako Duljević" 
+      fill 
+      // Ovdje je izmjena: object-[40%_top]
+      // Smanjuj broj (npr. 30%) da ide još lijevo, povećavaj (npr. 60%) da ide desno.
+      className="object-cover object-[40%_top] transition-transform duration-700 group-hover:scale-105"
+      sizes="(max-width: 768px) 50vw, (max-width: 1200px) 50vw, 33vw"
+      priority={true}
+  />
+</div>
                       <div className="relative w-full h-48 sm:h-64 md:h-72 lg:h-[500px] bg-slate-200 rounded-2xl overflow-hidden shadow-lg border border-slate-200 group">
                           <Image 
                               src="/hero6.webp" 
