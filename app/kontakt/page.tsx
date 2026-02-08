@@ -157,7 +157,7 @@ export default function Kontakt() {
                   </div>
                   <div className="flex items-center space-x-3 text-gray-600">
                     <FaPhone className="text-blue-600" />
-                    <span className="text-sm">+387 61 123 456</span>
+                    <span className="text-sm">+387 66 492 044</span>
                   </div>
                 </div>
               </div>
