@@ -29,7 +29,7 @@ const Navbar = () => {
           <Link href="/" className="flex items-center gap-3 group z-50" onClick={closeMenu}>
             <div className="relative w-12 h-12">
                <Image 
-                 src="/logo.png" 
+                 src="/logo.webp" 
                  alt="Logo Fondacije"
                  fill
                  className="object-contain group-hover:scale-105 transition duration-300"

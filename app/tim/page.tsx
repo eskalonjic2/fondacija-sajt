@@ -43,10 +43,10 @@ Okupljamo znanje, iskustvo i energiju kako bismo ideje pretvarali u vidljive rez
                         <div className="relative mb-6 rounded-2xl overflow-hidden shadow-md border-[4px] border-gray-50 mx-auto">
                             <div className="relative w-full h-96">
                                 <Image 
-                                    src="/hero8.jpg"
+                                    src="/hero8.webp"
                                     alt="Hako Duljević" 
                                     fill 
-                                    className="object-cover object-[53%_center] transition-transform duration-700 group-hover:scale-105"
+                                    className="object-cover object-[37%_center] transition-transform duration-700 group-hover:scale-105"
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-gray-900/20 to-transparent z-10"></div>
                             </div>
@@ -70,7 +70,7 @@ Okupljamo znanje, iskustvo i energiju kako bismo ideje pretvarali u vidljive rez
                         <div className="relative mb-6 rounded-2xl overflow-hidden shadow-md border-[4px] border-gray-50 mx-auto">
                             <div className="relative w-full h-96">
                                 <Image 
-                                    src="/hero6.jpeg" 
+                                    src="/hero6.webp" 
                                     alt="Damir Mahmutović" 
                                     fill 
                                     className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
@@ -99,10 +99,10 @@ Okupljamo znanje, iskustvo i energiju kako bismo ideje pretvarali u vidljive rez
                             {/* OKVIR I SLIKA */}
                             <div className="w-full h-96 bg-gray-200 relative">
                                 <Image 
-                                    src="/hero7.jpeg"
+                                    src="/hero7.webp"
                                     alt="Emir Skalonjić" 
                                     fill 
-                                    className="object-cover object-[80%_center] transition-transform duration-700 group-hover:scale-105"
+                                    className="object-cover object-[90%_center] transition-transform duration-700 group-hover:scale-105"
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-gray-900/20 to-transparent z-10"></div>
                             </div>
