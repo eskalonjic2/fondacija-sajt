@@ -5,9 +5,15 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'hyuxoqveygyjyztxeebc.supabase.co',
+        hostname: 'hyuxoqveygyjyztxeebc.supabase.co', // Tvoj postojeći Supabase
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'ik.imagekit.io', // NOVI: ImageKit
+        port: '',
+        pathname: '/**', // Dodao sam i ovo da bude sigurno za sve putanje
       },
     ],
   },
