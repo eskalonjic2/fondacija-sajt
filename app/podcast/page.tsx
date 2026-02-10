@@ -6,8 +6,8 @@ import Image from 'next/image';
 import { FaPlay, FaYoutube, FaMicrophone, FaHeadphones } from 'react-icons/fa';
 
 export default function Podcast() {
-  const [featured, setFeatured] = useState(null);
-  const [pastEpisodes, setPastEpisodes] = useState([]);
+  const [featured, setFeatured] = useState<any>(null);
+  const [pastEpisodes, setPastEpisodes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -36,7 +36,7 @@ export default function Podcast() {
   }
 
   // 1. FORMATIRANJE DATUMA
-  const formatDate = (dateString) => {
+  const formatDate = (dateString: string) => {
     if (!dateString) return "";
     const date = new Date(dateString);
     const day = date.getDate().toString().padStart(2, '0');
@@ -46,10 +46,10 @@ export default function Podcast() {
   };
 
   // 2. POBOLJŠANA FUNKCIJA ZA SKRAĆIVANJE TEKSTA (EXCERPT)
-  const createExcerpt = (text, maxLength) => {
+  const createExcerpt = (text: string, maxLength: number) => {
     if (!text) return "";
     
-    // 1. Zamijeni HTML tagove razmakom (da se riječi ne slijepe, npr </p><p>)
+    // 1. Zamijeni HTML tagove razmakom
     let str = text.replace(/<[^>]+>/g, ' ');
     
     // 2. Zamijeni &nbsp; i druge česte entitete običnim razmakom
@@ -153,13 +153,15 @@ export default function Podcast() {
                         </div>
 
                         {/* DESNA STRANA: SLIKA */}
-                        <div className="relative w-full h-64 sm:h-80 lg:h-auto lg:min-h-full order-1 lg:order-2">
+                        <div className="relative w-full h-64 sm:h-80 lg:h-auto lg:min-h-full order-1 lg:order-2 bg-slate-800">
                             {featured.image_url ? (
                                 <Image 
                                     src={featured.image_url} 
                                     alt={featured.title}
                                     fill
                                     className="object-cover object-top lg:object-center"
+                                    unoptimized={true} // Štedi limit
+                                    sizes="(max-width: 1024px) 100vw, 50vw"
                                 />
                             ) : (
                                 <div className="w-full h-full bg-slate-800 flex flex-col items-center justify-center text-slate-500 border-b lg:border-b-0 lg:border-l border-slate-700">
@@ -195,6 +197,8 @@ export default function Podcast() {
                                         alt={episode.title}
                                         fill
                                         className="object-cover transition-transform duration-700 group-hover:scale-110"
+                                        unoptimized={true} // Štedi limit
+                                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                     />
                                 ) : (
                                     <div className="flex items-center justify-center h-full text-gray-400">Nema slike</div>

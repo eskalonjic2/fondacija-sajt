@@ -181,19 +181,32 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
       {/* HEADER SLIKA */}
       {post.image_url ? (
         <div className="container mx-auto px-0 md:px-4 mt-0 md:mt-6">
-            <div className="relative w-full h-[500px] md:h-[650px] md:rounded-3xl overflow-hidden shadow-none md:shadow-lg bg-black">
+            <div className="relative w-full h-[500px] md:h-[650px] md:rounded-3xl overflow-hidden shadow-none md:shadow-lg bg-gray-900">
+            
+            {/* 1. ZAMUĆENA POZADINA (Da popuni prostor) */}
+            <Image 
+                src={post.image_url} 
+                alt="Background blur" 
+                fill 
+                className="object-cover opacity-50 blur-xl scale-110"
+                unoptimized={true} // Štedi limit
+            />
+
+            {/* 2. GLAVNA SLIKA (Da se vidi cijela) */}
             <Image 
                 src={post.image_url} 
                 alt={post.title} 
                 fill 
-                className="object-contain md:object-cover"
+                className="object-contain relative z-10" // object-contain osigurava da se vidi cijela slika
                 priority
+                unoptimized={true} // Štedi limit
             />
-            {/* Gradient samo na desktopu */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent hidden md:block"></div>
+            
+            {/* Gradient samo na desktopu (Sada preko svega) */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent hidden md:block z-20"></div>
             
             {/* Tekst preko slike (samo desktop) */}
-            <div className="absolute bottom-0 left-0 w-full p-6 md:p-12 text-white hidden md:block">
+            <div className="absolute bottom-0 left-0 w-full p-6 md:p-12 text-white hidden md:block z-30">
                 <Link href={backLinkUrl} className="inline-flex items-center text-white/80 hover:text-white mb-6 text-sm transition font-medium">
                     <FaArrowLeft className="mr-2" /> {backLinkText}
                 </Link>
@@ -251,12 +264,6 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
          </div>
          
          {/* --- TEKST (SADRŽAJ) --- */}
-         {/* ISPRAVKA ZA PRIKAZ TEKSTA:
-            1. `break-words`: Ovo je ključno. Ako riječ ne stane, prebacuje CIJELU riječ u novi red. 
-               Neće je sjeći na pola osim ako je riječ duža od cijelog reda (npr. dugačak URL).
-            2. `hyphens-none`: Zabranjuje automatsko dodavanje crtica.
-            3. `text-left`: Poravnava tekst lijevo da se izbjegnu rupe u tekstu.
-         */}
          <div 
            lang="bs"
            className="prose prose-lg max-w-none w-full text-gray-700 mb-12 
@@ -277,7 +284,7 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
          />
          {/* ----------------------------------------------- */}
 
-         {/* VIDEO I GALERIJA ... (ostatak koda je isti) */}
+         {/* VIDEO I GALERIJA */}
          {post.type === 'podcast' && post.youtube_link && (
              <div className="bg-gray-50 rounded-2xl p-6 md:p-8 mb-12 border border-gray-200 shadow-sm">
                  <h3 className="text-2xl font-bold mb-6 flex items-center gap-3 text-gray-900">
@@ -306,10 +313,11 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
                    onClick={() => openLightbox(index)}
                  >
                    <Image 
-                     src={url} 
+                     src={`${url}?tr=w-400`} // Učitava manju sliku (thumbnail)
                      alt={`Gallery ${index}`} 
                      fill 
                      className="object-cover group-hover:scale-110 transition duration-700" 
+                     unoptimized={true} // Štedi limit
                    />
                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition flex items-center justify-center">
                      <span className="text-white opacity-0 group-hover:opacity-100 font-bold text-4xl drop-shadow-lg transform scale-50 group-hover:scale-100 transition duration-300">+</span>
@@ -358,6 +366,7 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
                     className="max-w-full max-h-[85vh] object-contain shadow-2xl rounded-sm"
                     quality={100}
                     priority 
+                    unoptimized={true} // Štedi limit
                 />
             </div>
             

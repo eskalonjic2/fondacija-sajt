@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
+import Image from "next/image"; // Dodan import za Image
 import RevealSection from "../components/RevealSection"; 
 import { FaMicrophone, FaNewspaper, FaProjectDiagram } from "react-icons/fa"; 
 
@@ -104,10 +105,13 @@ export default function Blog() {
                     {/* SLIKA */}
                     <Link href={`/blog/${post.slug || post.id}`} className="block overflow-hidden relative h-52 w-full bg-gray-200">
                         {post.image_url ? (
-                        <img 
+                        <Image 
                             src={post.image_url} 
                             alt={post.title} 
-                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                            fill
+                            className="object-cover transition-transform duration-700 group-hover:scale-110"
+                            unoptimized={true} // Štedi limit
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         />
                         ) : (
                             <div className="flex items-center justify-center h-full text-gray-400">
@@ -116,7 +120,7 @@ export default function Blog() {
                         )}
                         
                         {/* Overlay na hover */}
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300"></div>
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 pointer-events-none"></div>
                     </Link>
 
                     <div className="p-6 flex flex-col flex-grow">

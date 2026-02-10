@@ -8,7 +8,8 @@ import Image from "next/image";
 export const revalidate = 0;
 
 // --- POMOĆNA FUNKCIJA ZA ČIŠĆENJE TEKSTA ---
-function stripHtml(html: string | null | undefined) {
+// Uklonjeno ": string | null | undefined" jer JS to ne razumije
+function stripHtml(html: string) {
   if (!html) return "";
   let text = html.replace(/<[^>]*>?/gm, ' '); // Ukloni tagove
   text = text.replace(/&nbsp;/g, ' '); // Ukloni non-breaking space
@@ -68,7 +69,7 @@ export default async function Home() {
   return (
     <main className="min-h-screen bg-white text-gray-800 font-sans">
       
-   {/* 1. HERO SEKCIJA */}
+     {/* 1. HERO SEKCIJA */}
       <section className="relative h-[650px] md:h-[700px] lg:h-[850px] flex items-center overflow-hidden">
         
         <style dangerouslySetInnerHTML={{__html: `
@@ -169,18 +170,16 @@ export default async function Home() {
                   {/* GRID SLIKA TIMA */}
                   <div className="grid grid-cols-2 gap-4 md:gap-6 lg:gap-8 relative z-10">
                       
-                     <div className="relative w-full h-48 sm:h-64 md:h-72 lg:h-[500px] bg-slate-200 rounded-2xl overflow-hidden shadow-lg border border-slate-200 group">
-  <Image 
-      src="/hero8.webp" 
-      alt="Hako Duljević" 
-      fill 
-      // Ovdje je izmjena: object-[40%_top]
-      // Smanjuj broj (npr. 30%) da ide još lijevo, povećavaj (npr. 60%) da ide desno.
-      className="object-cover object-[40%_top] transition-transform duration-700 group-hover:scale-105"
-      sizes="(max-width: 768px) 50vw, (max-width: 1200px) 50vw, 33vw"
-      priority={true}
-  />
-</div>
+                      <div className="relative w-full h-48 sm:h-64 md:h-72 lg:h-[500px] bg-slate-200 rounded-2xl overflow-hidden shadow-lg border border-slate-200 group">
+                          <Image 
+                              src="/hero8.webp" 
+                              alt="Hako Duljević" 
+                              fill 
+                              className="object-cover object-[40%_top] transition-transform duration-700 group-hover:scale-105"
+                              sizes="(max-width: 768px) 50vw, (max-width: 1200px) 50vw, 33vw"
+                              priority={true}
+                          />
+                      </div>
                       <div className="relative w-full h-48 sm:h-64 md:h-72 lg:h-[500px] bg-slate-200 rounded-2xl overflow-hidden shadow-lg border border-slate-200 group">
                           <Image 
                               src="/hero6.webp" 
@@ -354,7 +353,7 @@ export default async function Home() {
 
             {novosti.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-                {novosti.map((post: any) => {
+                {novosti.map((post) => {
                   const cleanNewsContent = stripHtml(post.content);
                   return (
                     <div key={post.id} className="bg-white rounded-xl md:rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition duration-300 border border-gray-100 group flex flex-col h-full">
@@ -458,7 +457,6 @@ export default async function Home() {
                                     {cleanProjectDesc || "Pogledajte detalje o našem najnovijem humanitarnom projektu..."}
                                 </p>
                                 
-                                {/* OVDJE JE PROMJENA LINKA */}
                                 <Link 
                                     href={`/blog/${latestProject.id}`} 
                                     className="inline-flex items-center text-white bg-[#be1e2d] hover:bg-red-700 font-bold py-3 px-5 md:py-3 md:px-6 rounded-lg transition-colors w-fit shadow-md text-sm md:text-base"
