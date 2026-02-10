@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/lib/supabaseClient";
@@ -8,7 +8,7 @@ import { FaMicrophone, FaYoutube, FaNewspaper, FaProjectDiagram, FaTimes, FaCrop
 
 // --- IMAGEKIT & CROP IMPORTI ---
 import { ImageKitProvider } from "imagekitio-next";
-import Cropper from "react-easy-crop"; // OVO SMO INSTALIRALI
+import Cropper from "react-easy-crop";
 import type { Point, Area } from "react-easy-crop";
 
 // --- TEXT EDITOR IMPORTI ---
@@ -61,7 +61,7 @@ async function getCroppedImg(imageSrc: string, pixelCrop: Area): Promise<Blob> {
         return;
       }
       resolve(blob);
-    }, 'image/jpeg', 0.95);
+    }, 'image/jpeg', 0.95); // Ovdje možeš smanjiti na 0.80 ako hoćeš još manju sliku
   });
 }
 
@@ -135,7 +135,6 @@ export default function Admin() {
   };
 
   // --- MANUAL UPLOAD FUNCTION ---
-  // Ovo nam treba jer IKUpload komponenta ne podržava slanje "Bloba" (izrezane slike)
   const uploadToImageKit = async (file: File | Blob, fileName: string, tags: string[]) => {
     const auth = await authenticator();
     
@@ -159,15 +158,13 @@ export default function Admin() {
   };
 
   // --- 1. COVER IMAGE LOGIKA SA CROPOM ---
-  
-  // Kada korisnik izabere fajl, samo ga učitamo u memoriju i otvorimo Crop Modal
   const handleCoverSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
       const reader = new FileReader();
       reader.addEventListener('load', () => {
         setCropImageSrc(reader.result as string);
-        setIsCropModalOpen(true); // Otvori modal
+        setIsCropModalOpen(true);
       });
       reader.readAsDataURL(file);
     }
@@ -177,13 +174,12 @@ export default function Admin() {
     setCroppedAreaPixels(croppedAreaPixels);
   }, []);
 
-  // Kada korisnik klikne "Sačuvaj izrezano"
   const handleCropSave = async () => {
     if (!cropImageSrc || !croppedAreaPixels) return;
 
     try {
       setIsUploadingCover(true);
-      setIsCropModalOpen(false); // Zatvori modal
+      setIsCropModalOpen(false);
 
       // 1. Napravi izrezanu sliku (Blob)
       const croppedBlob = await getCroppedImg(cropImageSrc, croppedAreaPixels);
@@ -198,11 +194,11 @@ export default function Admin() {
       alert("Greška pri uploadu slike.");
     } finally {
       setIsUploadingCover(false);
-      setCropImageSrc(null); // Reset
+      setCropImageSrc(null);
     }
   };
 
-  // --- 2. GALLERY LOGIKA (FIX ZA VIŠE SLIKA) ---
+  // --- 2. GALLERY LOGIKA ---
   const handleGallerySelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
 
@@ -210,14 +206,11 @@ export default function Admin() {
     const files = Array.from(e.target.files);
 
     try {
-      // Idemo fajl po fajl (paralelno)
       const uploadPromises = files.map(file => 
         uploadToImageKit(file, "gallery_img.jpg", ["gallery", type])
       );
 
       const results = await Promise.all(uploadPromises);
-      
-      // Dodajemo nove URL-ove u postojeći niz
       const newUrls = results.map(res => res.url);
       setGalleryUrls(prev => [...prev, ...newUrls]);
       
@@ -226,7 +219,6 @@ export default function Admin() {
       alert("Neke slike se nisu uspjele uploadovati.");
     } finally {
       setIsUploadingGallery(false);
-      // Resetujemo input da bi se moglo opet uploadovati isto ako treba
       e.target.value = ""; 
     }
   };
@@ -235,7 +227,7 @@ export default function Admin() {
     setGalleryUrls(prev => prev.filter(url => url !== urlToRemove));
   };
 
-  // --- OSTALE FUNKCIJE (Iste kao prije) ---
+  // --- OSTALE FUNKCIJE ---
   async function fetchPosts() {
     const { data } = await supabase.from("posts").select("*").order("created_at", { ascending: false });
     if (data) setPosts(data as Post[]);
@@ -335,7 +327,7 @@ export default function Admin() {
                 image={cropImageSrc}
                 crop={crop}
                 zoom={zoom}
-                aspect={16 / 9} // OVDJE MIJENJAŠ FORMAT (npr. 4/3, 1/1)
+                aspect={16 / 9} // OVDJE MIJENJAŠ FORMAT SLIKE
                 onCropChange={setCrop}
                 onZoomChange={setZoom}
                 onCropComplete={onCropComplete}
@@ -424,10 +416,17 @@ export default function Admin() {
                             
                             {coverUrl && (
                               <div className="mt-4 relative h-40 w-full rounded-lg overflow-hidden border border-gray-200 shadow-sm group">
-                                 <Image src={coverUrl} alt="Cover preview" fill className="object-cover" />
-                                 <button type="button" onClick={() => setCoverUrl(null)} className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1.5 shadow-md hover:bg-red-700">
-                                   <FaTimes size={14}/>
-                                 </button>
+                                  {/* --- OVDJE JE DODAT UNOPTIMIZED ZA VERCEL --- */}
+                                  <Image 
+                                    src={coverUrl} 
+                                    alt="Cover preview" 
+                                    fill 
+                                    className="object-cover" 
+                                    unoptimized={true} 
+                                  />
+                                  <button type="button" onClick={() => setCoverUrl(null)} className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1.5 shadow-md hover:bg-red-700">
+                                    <FaTimes size={14}/>
+                                  </button>
                               </div>
                             )}
                         </div>
@@ -464,7 +463,7 @@ export default function Admin() {
                          <span className="text-green-700 font-bold">Dodaj slike u galeriju</span>
                          <input 
                            type="file" 
-                           multiple // OVO JE KLJUČNO ZA VIŠE SLIKA
+                           multiple 
                            accept="image/*" 
                            onChange={handleGallerySelect} 
                            className="hidden" 
@@ -475,7 +474,14 @@ export default function Admin() {
                       <div className="mt-6 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
                           {galleryUrls.map((url, idx) => (
                               <div key={idx} className="relative h-24 w-full rounded-lg overflow-hidden group border border-gray-200 shadow-sm bg-white">
-                                  <Image src={url} alt="Gallery item" fill className="object-cover" />
+                                  {/* --- OVDJE JE DODAT UNOPTIMIZED ZA VERCEL --- */}
+                                  <Image 
+                                    src={url} 
+                                    alt="Gallery item" 
+                                    fill 
+                                    className="object-cover" 
+                                    unoptimized={true} 
+                                  />
                                   <button type="button" onClick={() => removeGalleryImage(url)} className="absolute top-1 right-1 bg-red-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition hover:bg-red-700">
                                     <FaTimes />
                                   </button>
@@ -515,7 +521,18 @@ export default function Admin() {
                 <div key={post.id} className="flex items-center justify-between p-6 hover:bg-gray-50 transition">
                   <div className="flex items-center gap-5">
                     <div className="relative w-20 h-20 rounded-lg overflow-hidden bg-gray-200 flex-shrink-0 border">
-                        {post.image_url ? <Image src={post.image_url} alt="thumb" fill className="object-cover" /> : <div className="text-xs text-gray-400 flex items-center justify-center h-full">No Image</div>}
+                        {post.image_url ? (
+                          /* --- OVDJE JE DODAT UNOPTIMIZED ZA VERCEL --- */
+                          <Image 
+                            src={post.image_url} 
+                            alt="thumb" 
+                            fill 
+                            className="object-cover" 
+                            unoptimized={true} 
+                          />
+                        ) : (
+                          <div className="text-xs text-gray-400 flex items-center justify-center h-full">No Image</div>
+                        )}
                     </div>
                     <div>
                       <h3 className="font-bold text-lg text-gray-900 mb-1">{post.title}</h3>
