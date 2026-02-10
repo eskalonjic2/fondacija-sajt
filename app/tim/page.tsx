@@ -11,7 +11,7 @@ export default function Tim() {
             Ljudi iza misije
         </h1>
         <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-          Iza svakog uspjeha stoje ljudi. Ti koji djeluje na terenu, razmišlja strateški i reaguje konkretno. 
+          Iza svakog uspjeha stoje ljudi. Tim koji djeluje na terenu, razmišlja strateški i reaguje konkretno. 
 Okupljamo znanje, iskustvo i energiju kako bismo ideje pretvarali u vidljive rezultate. Ovo su ljudi koji ne pričaju o promjenama. Oni ih stvaraju.
         </p>
       </div>
